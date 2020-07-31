@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
@@ -19,15 +19,104 @@
     <TextView
         android:id="@+id/sliderText"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
+        android:layout_height="wrap_content"
+        android:layout_below="@id/mapView"/>
 
     <com.google.android.material.slider.Slider
         android:id="@+id/slider"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:textAppearance="@style/TextAppearance.MaterialComponents.Button"
-        android:value="400.0"
+        android:layout_below="@id/sliderText"
+        android:value="100.0"
         android:valueFrom="100.0"
-        android:valueTo="1000.0" />
+        android:valueTo="1000.0"
+        android:stepSize="50.0"/>
 
-</LinearLayout>
+    <RelativeLayout
+        android:id="@+id/relative_ToDoHu"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_margin="10dp"
+        android:layout_below="@id/slider">
+
+        <TextView
+            android:id="@+id/ToDoHuText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:textSize="30dp"/>
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/selectToDoHu"
+            android:layout_width="100dp"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:layout_alignParentEnd="true"
+            android:text="都道府県" />
+
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:id="@+id/relative_line"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_margin="10dp"
+        android:layout_below="@id/relative_ToDoHu">
+
+        <TextView
+            android:id="@+id/lineText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:textSize="30dp"/>
+
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/selectLine"
+            android:layout_width="100dp"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:layout_alignParentEnd="true"
+            android:text="路線" />
+
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:id="@+id/relative_station"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_margin="10dp"
+        android:layout_below="@id/relative_line">
+
+        <TextView
+            android:id="@+id/stationText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:textSize="30dp"/>
+
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/selectStation"
+            android:layout_width="100dp"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:layout_alignParentEnd="true"
+            android:text="駅" />
+
+    </RelativeLayout>
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/bStart"
+        android:layout_width="match_parent"
+        android:layout_height="100dp"
+        android:layout_gravity="center_horizontal"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentEnd="true"
+        android:textSize="20dp"
+        android:text="アラームセット！" />
+
+</RelativeLayout>
