@@ -7,7 +7,11 @@
          Google Maps Android API v2, but you must specify either coarse or fine
          location permissions for the "MyLocation" functionality.
     -->
+
+    <!-- 位置情報を取得する -->
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <!-- HTTP通信をする -->
+    <uses-permission android:name="android.permission.INTERNET" />
 
     <application
         android:allowBackup="true"
