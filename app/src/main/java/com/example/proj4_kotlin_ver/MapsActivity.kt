@@ -1,28 +1,26 @@
 package com.example.proj4_kotlin_ver
 
-import android.app.Notification
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.content.Context
-import android.content.Intent
 import android.graphics.Color
 import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.View
 import androidx.core.app.NotificationCompat
-import androidx.core.app.NotificationManagerCompat
 import com.github.kittinunf.fuel.httpGet
+import com.github.kittinunf.fuel.json.responseJson
 import com.github.kittinunf.result.Result
 
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
-import com.google.android.gms.maps.MapView;
 import com.google.android.gms.maps.model.CircleOptions
 import com.google.android.gms.maps.model.LatLng
-import com.google.android.gms.maps.model.MarkerOptions
 import kotlinx.android.synthetic.main.activity_maps.*
+import org.json.JSONArray
+import org.json.JSONObject
 
 class MapsActivity : AppCompatActivity(), OnMapReadyCallback, View.OnClickListener {
 
@@ -42,8 +40,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, View.OnClickListen
     private val getStationURL: String = "https://express.heartrails.com/api/json?method=getStations&line="
 
     private lateinit var channelID: String
-    private lateinit var dialog: DialogFragment
-    private lateinit var httpAccessor: HttpAccessor
+    private lateinit var myDialog: MyDialogFragment
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -52,8 +49,8 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, View.OnClickListen
         mapView.onCreate(savedInstanceState)
         mapView.onResume()
         mapView.getMapAsync(this)
-        dialog = DialogFragment()
-        httpAccessor = HttpAccessor()
+
+        myDialog = MyDialogFragment()
 
         // 単調になるので下に切り分け
         selectToDoHu.setOnClickListener(this)
@@ -68,14 +65,11 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, View.OnClickListen
     override fun onMapReady(googleMap: GoogleMap) {
         mMap = googleMap
 
-        // Add a marker in Sydney and move the camera
-        val sydney = LatLng(35.02139, 135.75556)
-        mMap.setMapType(GoogleMap.MAP_TYPE_NORMAL)
+        mMap.mapType = GoogleMap.MAP_TYPE_NORMAL
         mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, 13F))
 
-
         // スライダーが操作され、値が変更されたとき。
-        slider.addOnChangeListener { slider, value, fromUser ->
+        slider.addOnChangeListener { slider, _, _ ->
             alertRadius = slider.value.toDouble()
             sliderText.text = "アラートラインのサイズ : " + (alertRadius / 1)
 
@@ -92,30 +86,33 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, View.OnClickListen
     }
 
     override fun onClick(v: View) {
-        val id = v.id
-        when(id) {
+        when(v.id) {
+            R.id.selectToDoHu -> {
+                val prefecturesList: Array<String> = resources.getStringArray(R.array.prefectures)
+                openListDialog(prefecturesList, 1)
+            }
+            R.id.selectLine -> if(!selectedTodohu.isNullOrEmpty()) lsButtonSelected(getLineURL + selectedTodohu, 2)
+            R.id.selectStation -> {}
             R.id.bStart -> setAlarmButtonSelected()
-            R.id.selectToDoHu -> tlButtonSelected(getToDoHuURL)
-            R.id.selectLine -> tlButtonSelected(getLineURL + selectedTodohu)
-            R.id.selectStation -> dialog.show(supportFragmentManager, "simple")
         }
     }
 
-    private fun tlButtonSelected(url: String) {
-        println("start")
-        ToDoHuText.text = String(httpAccessor.getJson(url))
-        println("end")
-//        url.httpGet().response { request, response, result ->
-//            when(result) {
-//                is Result.Success -> {
-//                    ToDoHuText.text = String(response.data)
-//
-//                }
-//                is Result.Failure -> {
-//                    ToDoHuText.text = "失敗しました"
-//                }
-//            }
-//        }
+    private fun lsButtonSelected(url: String, from: Int) {
+        url.httpGet().responseJson { request, response, result ->
+            when(result) {
+                is Result.Success -> {
+                    val responseJson = result.get()
+                    if (from == 2) {
+                        val lineObj: JSONArray = (responseJson.obj()["response"] as JSONObject).get("line") as JSONArray
+                        val lineList = Array(lineObj.length()) {
+                            lineObj.getString(it)
+                        }
+                        openListDialog(lineList, from)
+                    }
+                }
+                is Result.Failure -> { }
+            }
+        }
     }
 
     private fun setAlarmButtonSelected() {
@@ -145,6 +142,31 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, View.OnClickListen
                     setContentTitle(name)
                 }.build()
             notificationManager.notify(1, notify)
+        }
+    }
+
+    private fun openListDialog(strArray: Array<String>, from: Int) {
+        val args = Bundle()
+        args.putStringArray("arrays", strArray)
+        args.putInt("from", from)
+        myDialog.arguments = args
+        myDialog.show(supportFragmentManager, "simple")
+    }
+
+    fun onReturnValue(value: String, from: Int) {
+        /* fromについて
+        *   1 = 都道府県選択ボタン押下後、都道府県が選択された場合
+        *   2 = 路線選択ボタン押下後、路線が選択された場合
+        * */
+        when(from) {
+            1 -> {
+                selectedTodohu = value
+                ToDoHuText.text = value
+            }
+            2 -> {
+                selectedLine = value
+                lineText.text = value
+            }
         }
     }
 }
