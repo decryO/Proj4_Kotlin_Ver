@@ -14,7 +14,9 @@ data class StationDetail(
     val name: String,
     val prefecture: String,
     val line: String,
+    // Lng 経度
     val x: Double,
+    // Lat 緯度
     val y: Double,
     val postal: Int,
     val prev: String?,

@@ -7,8 +7,10 @@ import android.graphics.Color
 import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.text.Editable
 import android.view.View
 import androidx.core.app.NotificationCompat
+import androidx.core.widget.addTextChangedListener
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
 import com.github.kittinunf.fuel.httpGet
@@ -65,7 +67,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, View.OnClickListen
         bStart.setOnClickListener(this)
 
         channelID = getString(R.string.notify_channel_id)
-        sliderText.text = "アラートラインのサイズ : " + (alertRadius / 1)
+        sliderText.text = "半径${alertRadius}メートルに入ると通知します"
 
         prefecturesArray = resources.getStringArray(R.array.prefectures)
     }
@@ -79,7 +81,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, View.OnClickListen
         // スライダーが操作され、値が変更されたとき。
         slider.addOnChangeListener { slider, _, _ ->
             alertRadius = slider.value.toDouble()
-            sliderText.text = "アラートラインのサイズ : " + (alertRadius / 1)
+            sliderText.text = "半径${alertRadius}メートルに入ると通知します"
 
             mMap.clear()
 
@@ -91,6 +93,13 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, View.OnClickListen
                 .strokeWidth(5F)
             )
         }
+
+        stationText.addTextChangedListener(object : CustomTextWatcher{
+            override fun afterTextChanged(s: Editable?) {
+                println("Changed!!")
+                mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, 13F))
+            }
+        })
     }
 
     override fun onClick(v: View) {
@@ -195,7 +204,9 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, View.OnClickListen
                 lineText.text = selectedLine
             }
             3 -> {
-                stationText.text = stationData.response.station[value].name
+                val chooseStation: StationDetail = stationData.response.station[value]
+                latLng = LatLng(chooseStation.y, chooseStation.x)
+                stationText.text = chooseStation.name
             }
         }
     }

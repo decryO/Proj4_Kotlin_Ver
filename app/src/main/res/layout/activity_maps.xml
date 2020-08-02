@@ -20,7 +20,8 @@
         android:id="@+id/sliderText"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@id/mapView"/>
+        android:layout_below="@id/mapView"
+        android:textSize="20dp"/>
 
     <com.google.android.material.slider.Slider
         android:id="@+id/slider"
