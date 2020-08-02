@@ -24,7 +24,7 @@ class MyDialogFragment : DialogFragment() {
 
                 // activity as MapsActivity この書き方をしないとNullエラーが出るので注意
                 val act = activity as MapsActivity
-                act.onReturnValue(prefecturesList[which], from)
+                act.onReturnValue(which, from)
             }
             .setNegativeButton("Cancel") { _, _ ->
                 dismiss()

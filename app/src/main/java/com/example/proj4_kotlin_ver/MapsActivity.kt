@@ -9,6 +9,8 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.View
 import androidx.core.app.NotificationCompat
+import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
+import com.fasterxml.jackson.module.kotlin.readValue
 import com.github.kittinunf.fuel.httpGet
 import com.github.kittinunf.fuel.json.responseJson
 import com.github.kittinunf.result.Result
@@ -29,15 +31,19 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, View.OnClickListen
     private var latLng = LatLng(34.985458, 135.7577551)
     private var alertRadius: Double = 0.0
 
-    // HeartRails様API URL
-    // 都道府県一覧
-    private val getToDoHuURL: String = "https://express.heartrails.com/api/json?method=getPrefectures"
-    private var selectedTodohu: String = ""
-    // 路線一覧
-    private val getLineURL: String = "https://express.heartrails.com/api/json?method=getLines&prefecture="
+    private var selectedPrefecture: String = ""
     private var selectedLine: String = ""
-    // 駅一覧
+    // HeartRails様API URL 路線一覧
+    private val getLineURL: String = "https://express.heartrails.com/api/json?method=getLines&prefecture="
+    // HeartRails様API URL 駅一覧
     private val getStationURL: String = "https://express.heartrails.com/api/json?method=getStations&line="
+
+    // 都道府県リスト
+    private lateinit var prefecturesArray: Array<String>
+    // 路線リスト
+    private lateinit var lineArray: Array<String>
+    // 駅リスト
+    private lateinit var stationData: StationData
 
     private lateinit var channelID: String
     private lateinit var myDialog: MyDialogFragment
@@ -53,13 +59,15 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, View.OnClickListen
         myDialog = MyDialogFragment()
 
         // 単調になるので下に切り分け
-        selectToDoHu.setOnClickListener(this)
+        selectPrefecture.setOnClickListener(this)
         selectLine.setOnClickListener(this)
         selectStation.setOnClickListener(this)
         bStart.setOnClickListener(this)
 
         channelID = getString(R.string.notify_channel_id)
         sliderText.text = "アラートラインのサイズ : " + (alertRadius / 1)
+
+        prefecturesArray = resources.getStringArray(R.array.prefectures)
     }
 
     override fun onMapReady(googleMap: GoogleMap) {
@@ -87,28 +95,46 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, View.OnClickListen
 
     override fun onClick(v: View) {
         when(v.id) {
-            R.id.selectToDoHu -> {
-                val prefecturesList: Array<String> = resources.getStringArray(R.array.prefectures)
-                openListDialog(prefecturesList, 1)
+            R.id.selectPrefecture -> {
+                val prefecturesArray: Array<String> = resources.getStringArray(R.array.prefectures)
+                openListDialog(prefecturesArray, 1)
             }
-            R.id.selectLine -> if(!selectedTodohu.isNullOrEmpty()) lsButtonSelected(getLineURL + selectedTodohu, 2)
-            R.id.selectStation -> {}
+            R.id.selectLine -> if(!selectedPrefecture.isNullOrEmpty()) lineButtonSelected(getLineURL + selectedPrefecture)
+            R.id.selectStation -> if(!selectedLine.isNullOrEmpty()) stationButtonSelected(getStationURL + selectedLine)
             R.id.bStart -> setAlarmButtonSelected()
         }
     }
 
-    private fun lsButtonSelected(url: String, from: Int) {
-        url.httpGet().responseJson { request, response, result ->
+    private fun lineButtonSelected(url: String) {
+        url.httpGet().responseJson { _, _, result ->
             when(result) {
                 is Result.Success -> {
                     val responseJson = result.get()
-                    if (from == 2) {
-                        val lineObj: JSONArray = (responseJson.obj()["response"] as JSONObject).get("line") as JSONArray
-                        val lineList = Array(lineObj.length()) {
-                            lineObj.getString(it)
-                        }
-                        openListDialog(lineList, from)
+                    lineArray = emptyArray<String>()
+                    val lineObj: JSONArray = (responseJson.obj()["response"] as JSONObject).get("line") as JSONArray
+                    lineArray = Array(lineObj.length()) {
+                        lineObj.getString(it)
                     }
+
+                    openListDialog(lineArray, 2)
+                }
+                is Result.Failure -> { }
+            }
+        }
+    }
+
+    private fun stationButtonSelected(url: String) {
+        url.httpGet().responseString { _, _, result ->
+            when(result) {
+                is Result.Success -> {
+                    val mapper = jacksonObjectMapper()
+                    stationData = mapper.readValue<StationData>(result.value)
+                    var nameArray: Array<String> = emptyArray<String>()
+                    stationData.response.station.forEach {it ->
+                        nameArray += it.name
+                    }
+
+                    openListDialog(nameArray, 3)
                 }
                 is Result.Failure -> { }
             }
@@ -153,19 +179,23 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, View.OnClickListen
         myDialog.show(supportFragmentManager, "simple")
     }
 
-    fun onReturnValue(value: String, from: Int) {
+    fun onReturnValue(value: Int, from: Int) {
         /* fromについて
         *   1 = 都道府県選択ボタン押下後、都道府県が選択された場合
         *   2 = 路線選択ボタン押下後、路線が選択された場合
+        *   3 = 駅選択ボタン押下後、駅が選択された場合
         * */
         when(from) {
             1 -> {
-                selectedTodohu = value
-                ToDoHuText.text = value
+                selectedPrefecture = prefecturesArray[value]
+                prefectureText.text = selectedPrefecture
             }
             2 -> {
-                selectedLine = value
-                lineText.text = value
+                selectedLine = lineArray[value]
+                lineText.text = selectedLine
+            }
+            3 -> {
+                stationText.text = stationData.response.station[value].name
             }
         }
     }

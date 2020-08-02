@@ -33,7 +33,7 @@
         android:stepSize="50.0"/>
 
     <RelativeLayout
-        android:id="@+id/relative_ToDoHu"
+        android:id="@+id/relative_prefecture"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
@@ -41,14 +41,14 @@
         android:layout_below="@id/slider">
 
         <TextView
-            android:id="@+id/ToDoHuText"
+            android:id="@+id/prefectureText"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_centerInParent="true"
             android:textSize="30dp"/>
 
         <com.google.android.material.button.MaterialButton
-            android:id="@+id/selectToDoHu"
+            android:id="@+id/selectPrefecture"
             android:layout_width="100dp"
             android:layout_height="wrap_content"
             android:layout_centerInParent="true"
@@ -63,7 +63,7 @@
         android:layout_height="wrap_content"
         android:orientation="horizontal"
         android:layout_margin="10dp"
-        android:layout_below="@id/relative_ToDoHu">
+        android:layout_below="@id/relative_prefecture">
 
         <TextView
             android:id="@+id/lineText"
