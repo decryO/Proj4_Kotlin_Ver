@@ -22,6 +22,7 @@ import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.model.CircleOptions
 import com.google.android.gms.maps.model.LatLng
+import com.google.android.material.button.MaterialButton
 import kotlinx.android.synthetic.main.activity_maps.*
 import org.json.JSONArray
 import org.json.JSONObject
@@ -33,8 +34,11 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, View.OnClickListen
     private var latLng = LatLng(34.985458, 135.7577551)
     private var alertRadius: Double = 0.0
 
+    private lateinit var pButton: MaterialButton
+
     private var selectedPrefecture: String = ""
     private var selectedLine: String = ""
+    private var selectedStation: String = ""
     // HeartRails様API URL 路線一覧
     private val getLineURL: String = "https://express.heartrails.com/api/json?method=getLines&prefecture="
     // HeartRails様API URL 駅一覧
@@ -66,6 +70,13 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, View.OnClickListen
         selectStation.setOnClickListener(this)
         bStart.setOnClickListener(this)
 
+        // 都道府県、路線を選択していないと路線選択ボタン、駅選択ボタンを選択しても反応がないため無効にする
+        buttonIsEnable(0)
+
+        prefectureText.text = selectedPrefecture
+        lineText.text = selectedLine
+        stationText.text = selectedStation
+
         channelID = getString(R.string.notify_channel_id)
         sliderText.text = "半径${alertRadius}メートルに入ると通知します"
 
@@ -94,9 +105,9 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, View.OnClickListen
             )
         }
 
+        // 駅が選択されていればアラームセットボタンを活性化、そうでなければ非活性化
         stationText.addTextChangedListener(object : CustomTextWatcher{
             override fun afterTextChanged(s: Editable?) {
-                println("Changed!!")
                 mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, 13F))
             }
         })
@@ -180,6 +191,17 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, View.OnClickListen
         }
     }
 
+    /// from 1: 都道府県 2: 路線 3; 駅
+    private fun buttonIsEnable(from: Int) {
+        selectLine.isEnabled = false
+        selectStation.isEnabled = false
+        bStart.isEnabled = false
+
+        if(from > 0) selectLine.isEnabled = true
+        if(from > 1) selectStation.isEnabled = true
+        if(from > 2) bStart.isEnabled = true
+    }
+
     private fun openListDialog(strArray: Array<String>, from: Int) {
         val args = Bundle()
         args.putStringArray("arrays", strArray)
@@ -197,17 +219,24 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, View.OnClickListen
         when(from) {
             1 -> {
                 selectedPrefecture = prefecturesArray[value]
-                prefectureText.text = selectedPrefecture
+                selectedLine = ""
+                selectedStation = ""
             }
             2 -> {
                 selectedLine = lineArray[value]
-                lineText.text = selectedLine
+                selectedStation = ""
             }
             3 -> {
                 val chooseStation: StationDetail = stationData.response.station[value]
                 latLng = LatLng(chooseStation.y, chooseStation.x)
-                stationText.text = chooseStation.name
+                selectedStation = chooseStation.name
             }
         }
+
+        buttonIsEnable(from)
+
+        prefectureText.text = selectedPrefecture
+        lineText.text = selectedLine
+        stationText.text = selectedStation
     }
 }

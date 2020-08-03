@@ -10,6 +10,7 @@
 
     <!-- 位置情報を取得する -->
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_BACKGROUND_LOCATION" />
     <!-- HTTP通信をする -->
     <uses-permission android:name="android.permission.INTERNET" />
 
