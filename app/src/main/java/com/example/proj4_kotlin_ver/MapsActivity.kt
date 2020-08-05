@@ -3,12 +3,14 @@ package com.example.proj4_kotlin_ver
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.content.Context
+import android.content.Intent
 import android.graphics.Color
 import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.text.Editable
 import android.view.View
+import android.widget.Button
 import androidx.core.app.NotificationCompat
 import androidx.core.widget.addTextChangedListener
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
@@ -51,7 +53,6 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, View.OnClickListen
     // 駅リスト
     private lateinit var stationData: StationData
 
-    private lateinit var channelID: String
     private lateinit var myDialog: MyDialogFragment
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -70,14 +71,13 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, View.OnClickListen
         selectStation.setOnClickListener(this)
         bStart.setOnClickListener(this)
 
-        // 都道府県、路線を選択していないと路線選択ボタン、駅選択ボタンを選択しても反応がないため無効にする
-        buttonIsEnable(0)
+        // 路線などが選択されていない状態で駅選択ボタンなどが押せてしまうとおかしくなるので都道府県ボタンのみ押せるようにする
+        buttonSetEnable(0)
 
-        prefectureText.text = selectedPrefecture
-        lineText.text = selectedLine
-        stationText.text = selectedStation
+        selectPrefecture.text = if(!selectedPrefecture.isNullOrEmpty()) selectedPrefecture else "都道府県"
+        selectLine.text = if(!selectedLine.isNullOrEmpty()) selectedLine else "都道府県を選択してください"
+        selectStation.text = if(!selectedStation.isNullOrEmpty()) selectedStation else "路線を選択してください"
 
-        channelID = getString(R.string.notify_channel_id)
         sliderText.text = "半径${alertRadius}メートルに入ると通知します"
 
         prefecturesArray = resources.getStringArray(R.array.prefectures)
@@ -106,15 +106,26 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, View.OnClickListen
         }
 
         // 駅が選択されていればアラームセットボタンを活性化、そうでなければ非活性化
-        stationText.addTextChangedListener(object : CustomTextWatcher{
+        selectStation.addTextChangedListener(object : CustomTextWatcher{
             override fun afterTextChanged(s: Editable?) {
                 mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, 13F))
+
+                mMap.clear()
+
+                mMap.addCircle(CircleOptions()
+                    .center(latLng)
+                    .radius(alertRadius)
+                    .strokeColor(Color.RED)
+                    .fillColor(0x220000FF)
+                    .strokeWidth(5F)
+                )
             }
         })
     }
 
     override fun onClick(v: View) {
         when(v.id) {
+
             R.id.selectPrefecture -> {
                 val prefecturesArray: Array<String> = resources.getStringArray(R.array.prefectures)
                 openListDialog(prefecturesArray, 1)
@@ -162,41 +173,19 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, View.OnClickListen
     }
 
     private fun setAlarmButtonSelected() {
-        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            // 通知のタイトル
-            val name = getString(R.string.notify_name)
-
-            // 通知の説明
-            val descriptionText = getString(R.string.notify_description)
-
-            // 通知の重要度 ここでは通知バーに表示されるが音は出ない設定(IMPORTANCE_LOW)
-            val importance = NotificationManager.IMPORTANCE_LOW
-
-            val mChannel = NotificationChannel(channelID, name, importance)
-            mChannel.apply {
-                description = descriptionText
-            }
-
-            val notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-            notificationManager.createNotificationChannel(mChannel)
-
-            val notify = NotificationCompat
-                .Builder(this, channelID)
-                .apply {
-                    setSmallIcon(R.drawable.ic_notify)
-                    setContentText(descriptionText)
-                    setContentTitle(name)
-                }.build()
-            notificationManager.notify(1, notify)
-        }
+        val serviceIntent = Intent(this, GeoFencingService::class.java)
+        startForegroundService(serviceIntent)
+        val activityIntent = Intent(this, AlermStopActivity::class.java)
+        startActivity(activityIntent)
     }
 
-    /// from 1: 都道府県 2: 路線 3; 駅
-    private fun buttonIsEnable(from: Int) {
+    /// from 1: 都道府県 2: 路線 3: 駅
+    private fun buttonSetEnable(from: Int) {
         selectLine.isEnabled = false
         selectStation.isEnabled = false
         bStart.isEnabled = false
 
+        selectPrefecture.isEnabled = true
         if(from > 0) selectLine.isEnabled = true
         if(from > 1) selectStation.isEnabled = true
         if(from > 2) bStart.isEnabled = true
@@ -216,6 +205,8 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, View.OnClickListen
         *   2 = 路線選択ボタン押下後、路線が選択された場合
         *   3 = 駅選択ボタン押下後、駅が選択された場合
         * */
+
+        // value = -1 はダイアログのキャンセルボタンが押された際の値
         when(from) {
             1 -> {
                 selectedPrefecture = prefecturesArray[value]
@@ -233,10 +224,10 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, View.OnClickListen
             }
         }
 
-        buttonIsEnable(from)
+        buttonSetEnable(from)
 
-        prefectureText.text = selectedPrefecture
-        lineText.text = selectedLine
-        stationText.text = selectedStation
+        selectPrefecture.text = if(!selectedPrefecture.isNullOrEmpty()) selectedPrefecture else "都道府県"
+        selectLine.text = if(!selectedLine.isNullOrEmpty()) selectedLine else "都道府県を選択してください"
+        selectStation.text = if(!selectedStation.isNullOrEmpty()) selectedStation else "路線を選択してください"
     }
 }
