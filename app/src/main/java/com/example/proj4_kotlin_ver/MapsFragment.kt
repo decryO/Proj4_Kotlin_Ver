@@ -1,18 +1,13 @@
 package com.example.proj4_kotlin_ver
 
-import android.app.NotificationChannel
-import android.app.NotificationManager
-import android.content.Context
 import android.content.Intent
 import android.graphics.Color
-import android.os.Build
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.text.Editable
+import android.view.LayoutInflater
 import android.view.View
-import android.widget.Button
-import androidx.core.app.NotificationCompat
-import androidx.core.widget.addTextChangedListener
+import android.view.ViewGroup
+import androidx.fragment.app.Fragment
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
 import com.github.kittinunf.fuel.httpGet
@@ -24,19 +19,16 @@ import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.model.CircleOptions
 import com.google.android.gms.maps.model.LatLng
-import com.google.android.material.button.MaterialButton
 import kotlinx.android.synthetic.main.activity_maps.*
 import org.json.JSONArray
 import org.json.JSONObject
 
-class MapsActivity : AppCompatActivity(), OnMapReadyCallback, View.OnClickListener {
+class MapsFragment : Fragment(), OnMapReadyCallback, View.OnClickListener, MyDialogFragment.MyDialogFragmentListener {
 
     private lateinit var mMap: GoogleMap
     // デフォルトの座標(京都)
     private var latLng = LatLng(34.985458, 135.7577551)
     private var alertRadius: Double = 0.0
-
-    private lateinit var pButton: MaterialButton
 
     private var selectedPrefecture: String = ""
     private var selectedLine: String = ""
@@ -55,9 +47,16 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, View.OnClickListen
 
     private lateinit var myDialog: MyDialogFragment
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_maps)
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View? {
+        return inflater.inflate(R.layout.activity_maps, container, false)
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
 
         mapView.onCreate(savedInstanceState)
         mapView.onResume()
@@ -69,14 +68,14 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, View.OnClickListen
         selectPrefecture.setOnClickListener(this)
         selectLine.setOnClickListener(this)
         selectStation.setOnClickListener(this)
-        bStart.setOnClickListener(this)
+        alarmButton.setOnClickListener(this)
 
         // 路線などが選択されていない状態で駅選択ボタンなどが押せてしまうとおかしくなるので都道府県ボタンのみ押せるようにする
         buttonSetEnable(0)
 
-        selectPrefecture.text = if(!selectedPrefecture.isNullOrEmpty()) selectedPrefecture else "都道府県"
-        selectLine.text = if(!selectedLine.isNullOrEmpty()) selectedLine else "都道府県を選択してください"
-        selectStation.text = if(!selectedStation.isNullOrEmpty()) selectedStation else "路線を選択してください"
+        selectPrefecture.text = if(selectedPrefecture.isNotEmpty()) selectedPrefecture else "都道府県"
+        selectLine.text = if(selectedLine.isNotEmpty()) selectedLine else "都道府県を選択してください"
+        selectStation.text = if(selectedStation.isNotEmpty()) selectedStation else "路線を選択してください"
 
         sliderText.text = "半径${alertRadius}メートルに入ると通知します"
 
@@ -130,9 +129,9 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, View.OnClickListen
                 val prefecturesArray: Array<String> = resources.getStringArray(R.array.prefectures)
                 openListDialog(prefecturesArray, 1)
             }
-            R.id.selectLine -> if(!selectedPrefecture.isNullOrEmpty()) lineButtonSelected(getLineURL + selectedPrefecture)
-            R.id.selectStation -> if(!selectedLine.isNullOrEmpty()) stationButtonSelected(getStationURL + selectedLine)
-            R.id.bStart -> setAlarmButtonSelected()
+            R.id.selectLine -> if(selectedPrefecture.isNotEmpty()) lineButtonSelected(getLineURL + selectedPrefecture)
+            R.id.selectStation -> if(selectedLine.isNotEmpty()) stationButtonSelected(getStationURL + selectedLine)
+            R.id.alarmButton -> alarmStartButtonSelected()
         }
     }
 
@@ -141,7 +140,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, View.OnClickListen
             when(result) {
                 is Result.Success -> {
                     val responseJson = result.get()
-                    lineArray = emptyArray<String>()
+                    lineArray = emptyArray()
                     val lineObj: JSONArray = (responseJson.obj()["response"] as JSONObject).get("line") as JSONArray
                     lineArray = Array(lineObj.length()) {
                         lineObj.getString(it)
@@ -159,9 +158,9 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, View.OnClickListen
             when(result) {
                 is Result.Success -> {
                     val mapper = jacksonObjectMapper()
-                    stationData = mapper.readValue<StationData>(result.value)
-                    var nameArray: Array<String> = emptyArray<String>()
-                    stationData.response.station.forEach {it ->
+                    stationData = mapper.readValue(result.value)
+                    var nameArray: Array<String> = emptyArray()
+                    stationData.response.station.forEach {
                         nameArray += it.name
                     }
 
@@ -172,23 +171,26 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, View.OnClickListen
         }
     }
 
-    private fun setAlarmButtonSelected() {
-        val serviceIntent = Intent(this, GeoFencingService::class.java)
-        startForegroundService(serviceIntent)
-        val activityIntent = Intent(this, AlermStopActivity::class.java)
-        startActivity(activityIntent)
+    private fun alarmStartButtonSelected() {
+        val serviceIntent = Intent(activity, GeoFencingService::class.java)
+        activity?.startForegroundService(serviceIntent)
+        val alarmStopFragment = AlarmStopFragment()
+
+        val transaction = activity?.supportFragmentManager?.beginTransaction().apply {
+
+        }
     }
 
     /// from 1: 都道府県 2: 路線 3: 駅
     private fun buttonSetEnable(from: Int) {
         selectLine.isEnabled = false
         selectStation.isEnabled = false
-        bStart.isEnabled = false
+        alarmButton.isEnabled = false
 
         selectPrefecture.isEnabled = true
         if(from > 0) selectLine.isEnabled = true
         if(from > 1) selectStation.isEnabled = true
-        if(from > 2) bStart.isEnabled = true
+        if(from > 2) alarmButton.isEnabled = true
     }
 
     private fun openListDialog(strArray: Array<String>, from: Int) {
@@ -196,10 +198,10 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, View.OnClickListen
         args.putStringArray("arrays", strArray)
         args.putInt("from", from)
         myDialog.arguments = args
-        myDialog.show(supportFragmentManager, "simple")
+        myDialog.show(childFragmentManager, "simple")
     }
 
-    fun onReturnValue(value: Int, from: Int) {
+    override fun onDialogItemClick(value: Int, from: Int) {
         /* fromについて
         *   1 = 都道府県選択ボタン押下後、都道府県が選択された場合
         *   2 = 路線選択ボタン押下後、路線が選択された場合
@@ -226,8 +228,9 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, View.OnClickListen
 
         buttonSetEnable(from)
 
-        selectPrefecture.text = if(!selectedPrefecture.isNullOrEmpty()) selectedPrefecture else "都道府県"
-        selectLine.text = if(!selectedLine.isNullOrEmpty()) selectedLine else "都道府県を選択してください"
-        selectStation.text = if(!selectedStation.isNullOrEmpty()) selectedStation else "路線を選択してください"
+        selectPrefecture.text = if(selectedPrefecture.isNotEmpty()) selectedPrefecture else "都道府県"
+        selectLine.text = if(selectedLine.isNotEmpty()) selectedLine else "都道府県を選択してください"
+        selectStation.text = if(selectedStation.isNotEmpty()) selectedStation else "路線を選択してください"
     }
+
 }

@@ -1,7 +1,8 @@
 <resources>
     <string name="app_name">Proj4_Kotlin_Ver</string>
     <string name="title_activity_maps">Map</string>
-    <string name="notify_title">アラームセット</string>
+    <string name="alarmButton_Start">アラームセット</string>
+    <string name="alarmButton_Stop">アラームストップ</string>
     <string name="notify_channel_id">proj4_channel_01</string>
     <string name="notify_name">proj4</string>
     <string name="notify_description">アラームをセット中です...</string>

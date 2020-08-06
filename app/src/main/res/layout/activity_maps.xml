@@ -18,7 +18,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:uiRotateGestures="false"
-        tools:context=".MapsActivity" />
+        tools:context=".MapsFragment" />
 
     <TextView
         android:id="@+id/sliderText"
@@ -49,7 +49,7 @@
         android:orientation="vertical"
         android:layout_marginTop="10dp"
         android:layout_marginBottom="10dp"
-        app:layout_constraintBottom_toTopOf="@+id/bStart"
+        app:layout_constraintBottom_toTopOf="@+id/alarmButton"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/slider">
@@ -91,7 +91,7 @@
     </LinearLayout>
 
     <com.google.android.material.button.MaterialButton
-        android:id="@+id/bStart"
+        android:id="@+id/alarmButton"
         android:layout_width="match_parent"
         android:layout_height="100dp"
         android:textSize="20sp"
