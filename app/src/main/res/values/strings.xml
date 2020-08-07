@@ -6,4 +6,6 @@
     <string name="notify_channel_id">proj4_channel_01</string>
     <string name="notify_name">proj4</string>
     <string name="notify_description">アラームをセット中です...</string>
+    <string name="saved_station">駅名</string>
+    <string name="saved_radius">半径</string>
 </resources>

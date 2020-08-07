@@ -1,6 +1,8 @@
 package com.example.proj4_kotlin_ver
 
+import android.content.Context
 import android.content.Intent
+import android.content.SharedPreferences
 import android.graphics.Color
 import android.os.Bundle
 import android.text.Editable
@@ -22,6 +24,7 @@ import com.google.android.gms.maps.model.LatLng
 import kotlinx.android.synthetic.main.activity_maps.*
 import org.json.JSONArray
 import org.json.JSONObject
+import java.lang.reflect.Array.newInstance
 
 class MapsFragment : Fragment(), OnMapReadyCallback, View.OnClickListener, MyDialogFragment.MyDialogFragmentListener {
 
@@ -46,6 +49,17 @@ class MapsFragment : Fragment(), OnMapReadyCallback, View.OnClickListener, MyDia
     private lateinit var stationData: StationData
 
     private lateinit var myDialog: MyDialogFragment
+
+    companion object {
+        fun newInstance(): MapsFragment {
+            val fragment = MapsFragment()
+            val args = Bundle()
+
+            fragment.arguments = args
+
+            return fragment
+        }
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -174,10 +188,21 @@ class MapsFragment : Fragment(), OnMapReadyCallback, View.OnClickListener, MyDia
     private fun alarmStartButtonSelected() {
         val serviceIntent = Intent(activity, GeoFencingService::class.java)
         activity?.startForegroundService(serviceIntent)
-        val alarmStopFragment = AlarmStopFragment()
+
+        val sharedPref = activity?.getPreferences(Context.MODE_PRIVATE) ?: return
+        with(sharedPref.edit()) {
+            putString(getString(R.string.saved_station), selectedStation)
+            putInt(getString(R.string.saved_radius), alertRadius.toInt())
+            commit()
+        }
 
         val transaction = activity?.supportFragmentManager?.beginTransaction().apply {
-
+            val fragmentManager = fragmentManager
+            if(fragmentManager != null) {
+                val transaction = fragmentManager.beginTransaction()
+                transaction.replace(R.id.container, AlarmStopFragment.newInstance())
+                transaction.commit()
+            }
         }
     }
 

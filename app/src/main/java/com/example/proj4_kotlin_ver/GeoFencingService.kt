@@ -1,8 +1,6 @@
 package com.example.proj4_kotlin_ver
 
-import android.app.NotificationChannel
-import android.app.NotificationManager
-import android.app.Service
+import android.app.*
 import android.content.Context
 import android.content.Intent
 import android.os.Build
@@ -40,12 +38,20 @@ class GeoFencingService : Service() {
             val notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
             notificationManager.createNotificationChannel(mChannel)
 
+            // 通知をタップしたときにアプリを起動するために必要
+            val returnIntent = Intent(this, MainActivity::class.java)
+            val stackBuilder: TaskStackBuilder = TaskStackBuilder.create(this)
+            stackBuilder.addNextIntentWithParentStack(returnIntent)
+            val pendingIntent: PendingIntent =
+                stackBuilder.getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT)
+
             val notify = NotificationCompat
                 .Builder(this, channelID)
                 .apply {
                     setSmallIcon(R.drawable.ic_notify)
                     setContentText(descriptionText)
                     setContentTitle(name)
+                    setContentIntent(pendingIntent)
                 }.build()
             startForeground(1, notify)
         }
