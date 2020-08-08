@@ -9,6 +9,7 @@
     <!-- 位置情報を取得する -->
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_BACKGROUND_LOCATION" /> <!-- HTTP通信をする -->
+    <uses-permission android:name="android.permission.BLUETOOTH" />
     <uses-permission android:name="android.permission.INTERNET" /> <!-- 縦向きでのサポートのみにする場合記載したほうが良い -->
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" /> <!-- Foreground ServiceをAPI 28以上の環境で使用する際に必要 -->
     <uses-feature android:name="android.hardware.screen.portrait" />
@@ -35,6 +36,15 @@
             android:name=".GeoFencingService"
             android:enabled="true"
             android:exported="true" />
+
+        <receiver
+            android:name=".HeadSetPlugReceiver"
+            android:enabled="true"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.HEADSET_PLUG" />
+            </intent-filter>
+        </receiver>
         <!--
              The API key for Google Maps-based APIs is defined as a string resource.
              (See the file "res/values/google_maps_api.xml").

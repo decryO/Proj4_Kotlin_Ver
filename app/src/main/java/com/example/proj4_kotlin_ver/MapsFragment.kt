@@ -187,6 +187,10 @@ class MapsFragment : Fragment(), OnMapReadyCallback, View.OnClickListener, MyDia
 
     private fun alarmStartButtonSelected() {
         val serviceIntent = Intent(activity, GeoFencingService::class.java)
+        serviceIntent.putExtra("Lat", latLng.latitude)
+        serviceIntent.putExtra("Lng", latLng.longitude)
+        serviceIntent.putExtra("radius", alertRadius)
+        serviceIntent.putExtra("station", selectedStation)
         activity?.startForegroundService(serviceIntent)
 
         val sharedPref = activity?.getPreferences(Context.MODE_PRIVATE) ?: return
