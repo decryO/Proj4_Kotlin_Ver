@@ -4,7 +4,10 @@ import android.app.ActivityManager
 import android.content.Context
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.view.Menu
+import android.view.MenuItem
 import androidx.fragment.app.Fragment
+import kotlinx.android.synthetic.main.activity_main.*
 
 class MainActivity : AppCompatActivity() {
 
@@ -15,11 +18,30 @@ class MainActivity : AppCompatActivity() {
         val mapsFragment = MapsFragment()
         val alarmStopFragment = AlarmStopFragment()
 
+        setSupportActionBar(tool_bar)
+
         // アプリを開いた時にアラームがセットされていればストップ機能を有したFragmentを表示する
         if(isServiceWorking(GeoFencingService::class.java)) {
             replaceFragment(alarmStopFragment)
         }else{
             replaceFragment(mapsFragment)
+        }
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+        menuInflater.inflate(R.menu.options, menu)
+        return super.onCreateOptionsMenu(menu)
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        when(item.itemId) {
+            R.id.setting -> {
+                return true
+            }
+            R.id.aboutApp -> {
+                return true
+            }
+            else -> return super.onOptionsItemSelected(item)
         }
     }
 

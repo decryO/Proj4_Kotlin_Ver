@@ -6,6 +6,10 @@
     <string name="notify_channel_id">proj4_channel_01</string>
     <string name="notify_name">乗り過ごし防止アラーム</string>
     <string name="notify_description">駅にアラームをセット中です</string>
+
+    <string name="settingTitle">設定</string>
+    <string name="aboutAppTitle">このアプリについて</string>
+
     <string name="saved_station">駅名</string>
     <string name="saved_radius">半径</string>
 </resources>

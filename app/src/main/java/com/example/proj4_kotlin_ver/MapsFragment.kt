@@ -24,14 +24,13 @@ import com.google.android.gms.maps.model.LatLng
 import kotlinx.android.synthetic.main.activity_maps.*
 import org.json.JSONArray
 import org.json.JSONObject
-import java.lang.reflect.Array.newInstance
 
 class MapsFragment : Fragment(), OnMapReadyCallback, View.OnClickListener, MyDialogFragment.MyDialogFragmentListener {
 
     private lateinit var mMap: GoogleMap
     // デフォルトの座標(京都)
     private var latLng = LatLng(34.985458, 135.7577551)
-    private var alertRadius: Double = 0.0
+    private var alertRadius: Double = 100.0
 
     private var selectedPrefecture: String = ""
     private var selectedLine: String = ""
@@ -189,7 +188,7 @@ class MapsFragment : Fragment(), OnMapReadyCallback, View.OnClickListener, MyDia
         val serviceIntent = Intent(activity, GeoFencingService::class.java)
         serviceIntent.putExtra("Lat", latLng.latitude)
         serviceIntent.putExtra("Lng", latLng.longitude)
-        serviceIntent.putExtra("radius", alertRadius)
+        serviceIntent.putExtra("radius", alertRadius.toFloat())
         serviceIntent.putExtra("station", selectedStation)
         activity?.startForegroundService(serviceIntent)
 
