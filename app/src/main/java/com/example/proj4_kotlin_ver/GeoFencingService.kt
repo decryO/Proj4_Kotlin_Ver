@@ -4,6 +4,7 @@ import android.Manifest
 import android.app.*
 import android.bluetooth.BluetoothA2dp
 import android.bluetooth.BluetoothAdapter
+import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
@@ -12,16 +13,16 @@ import android.location.Location
 import android.os.Build
 import android.os.Bundle
 import android.os.IBinder
+import android.widget.Toast
 import androidx.core.app.ActivityCompat
 import androidx.core.app.NotificationCompat
 import com.google.android.gms.common.api.GoogleApi
 import com.google.android.gms.common.api.GoogleApiClient
-import com.google.android.gms.location.Geofence
-import com.google.android.gms.location.GeofencingClient
-import com.google.android.gms.location.GeofencingRequest
-import com.google.android.gms.location.LocationServices
+import com.google.android.gms.location.*
+import org.greenrobot.eventbus.EventBus
+import org.greenrobot.eventbus.Subscribe
 
-class GeoFencingService : Service(), GoogleApiClient.ConnectionCallbacks, HeadSetPlugReceiver.Callback, GeofenceBroadcastReceiver.GeoCallback {
+class GeoFencingService : Service(), GoogleApiClient.ConnectionCallbacks, HeadSetPlugReceiver.Callback {
 
     private lateinit var googleApiClient: GoogleApiClient
     private lateinit var geofencingClient: GeofencingClient
@@ -29,6 +30,7 @@ class GeoFencingService : Service(), GoogleApiClient.ConnectionCallbacks, HeadSe
     private lateinit var channelID: String
     private lateinit var headSetPlugReceiver: HeadSetPlugReceiver
     private lateinit var intentFilter: IntentFilter
+    private lateinit var georeceiver: GeofenceBroadcastReceiver
 
     private var geofenceList = mutableListOf<Geofence>()
 
@@ -57,6 +59,25 @@ class GeoFencingService : Service(), GoogleApiClient.ConnectionCallbacks, HeadSe
             .build()
         googleApiClient.connect()
         geofencingClient = LocationServices.getGeofencingClient(this)
+
+        EventBus.getDefault().register(this)
+        // headplugreceiverのように
+//        georeceiver = object : BroadcastReceiver() {
+//            override fun onReceive(context: Context?, intent: Intent?) {
+//                val geofencingEvent = GeofencingEvent.fromIntent(intent)
+//                if (geofencingEvent.hasError()) {
+//                    return
+//                }
+//
+//                // Get the transition type.
+//                val geofenceTransition = geofencingEvent.geofenceTransition
+//
+//                // Test that the reported transition was of interest.
+//                if (geofenceTransition == Geofence.GEOFENCE_TRANSITION_ENTER) {
+//                    println("指定範囲に入りました")
+//                }
+//            }
+//        }
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
@@ -111,9 +132,16 @@ class GeoFencingService : Service(), GoogleApiClient.ConnectionCallbacks, HeadSe
         return START_STICKY
     }
 
+    @Subscribe
+    fun onEvent(event: GeofenceEvent) {
+        println("とうちゃく！！")
+        
+    }
+
     override fun onDestroy() {
         super.onDestroy()
         unregisterReceiver(headSetPlugReceiver)
+        EventBus.getDefault().unregister(this)
     }
 
     override fun onEventInvoked(state: Boolean) {
@@ -123,11 +151,6 @@ class GeoFencingService : Service(), GoogleApiClient.ConnectionCallbacks, HeadSe
         }else{
             println("切断されている")
         }
-    }
-
-    override fun enteredStation() {
-        println("指定範囲に入りました")
-        onDestroy()
     }
 
     override fun onConnected(p0: Bundle?) {

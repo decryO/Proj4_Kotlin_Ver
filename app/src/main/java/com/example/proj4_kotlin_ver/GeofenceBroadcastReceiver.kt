@@ -3,17 +3,15 @@ package com.example.proj4_kotlin_ver
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
-
+import android.content.IntentFilter
+import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import com.google.android.gms.location.Geofence
 import com.google.android.gms.location.GeofencingEvent
+import org.greenrobot.eventbus.EventBus
+import org.jetbrains.annotations.NotNull
+
 
 class GeofenceBroadcastReceiver: BroadcastReceiver() {
-
-    private lateinit var geoCallback: GeoCallback
-
-    interface GeoCallback {
-        fun enteredStation()
-    }
 
     override fun onReceive(context: Context?, intent: Intent?) {
         val geofencingEvent = GeofencingEvent.fromIntent(intent)
@@ -26,7 +24,7 @@ class GeofenceBroadcastReceiver: BroadcastReceiver() {
 
         // Test that the reported transition was of interest.
         if (geofenceTransition == Geofence.GEOFENCE_TRANSITION_ENTER) {
-            println("指定範囲に入りました")
+            EventBus.getDefault().post(GeofenceEvent())
         }
     }
 }
