@@ -2,7 +2,6 @@ package com.example.proj4_kotlin_ver
 
 import android.content.Context
 import android.content.Intent
-import android.content.SharedPreferences
 import android.graphics.Color
 import android.os.Bundle
 import android.text.Editable
@@ -25,7 +24,7 @@ import kotlinx.android.synthetic.main.activity_maps.*
 import org.json.JSONArray
 import org.json.JSONObject
 
-class MapsFragment : Fragment(), OnMapReadyCallback, View.OnClickListener, MyDialogFragment.MyDialogFragmentListener {
+class MapsFragment : Fragment(), OnMapReadyCallback, View.OnClickListener, LiseDialogFragment.MyDialogFragmentListener {
 
     private lateinit var mMap: GoogleMap
     // デフォルトの座標(京都)
@@ -47,7 +46,7 @@ class MapsFragment : Fragment(), OnMapReadyCallback, View.OnClickListener, MyDia
     // 駅リスト
     private lateinit var stationData: StationData
 
-    private lateinit var myDialog: MyDialogFragment
+    private lateinit var liseDialog: LiseDialogFragment
 
     companion object {
         fun newInstance(): MapsFragment {
@@ -75,7 +74,7 @@ class MapsFragment : Fragment(), OnMapReadyCallback, View.OnClickListener, MyDia
         mapView.onResume()
         mapView.getMapAsync(this)
 
-        myDialog = MyDialogFragment()
+        liseDialog = LiseDialogFragment()
 
         // 単調になるので下に切り分け
         selectPrefecture.setOnClickListener(this)
@@ -225,8 +224,8 @@ class MapsFragment : Fragment(), OnMapReadyCallback, View.OnClickListener, MyDia
         val args = Bundle()
         args.putStringArray("arrays", strArray)
         args.putInt("from", from)
-        myDialog.arguments = args
-        myDialog.show(childFragmentManager, "simple")
+        liseDialog.arguments = args
+        liseDialog.show(childFragmentManager, "simple")
     }
 
     override fun onDialogItemClick(value: Int, from: Int) {

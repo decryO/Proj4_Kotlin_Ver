@@ -3,13 +3,9 @@ package com.example.proj4_kotlin_ver
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
-import android.content.IntentFilter
-import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import com.google.android.gms.location.Geofence
 import com.google.android.gms.location.GeofencingEvent
 import org.greenrobot.eventbus.EventBus
-import org.jetbrains.annotations.NotNull
-
 
 class GeofenceBroadcastReceiver: BroadcastReceiver() {
 
@@ -19,10 +15,9 @@ class GeofenceBroadcastReceiver: BroadcastReceiver() {
             return
         }
 
-        // Get the transition type.
         val geofenceTransition = geofencingEvent.geofenceTransition
 
-        // Test that the reported transition was of interest.
+        // HeadsetPlugreceiverのようにcontext as callbackとするとエラーになるのでEventBusを使用する
         if (geofenceTransition == Geofence.GEOFENCE_TRANSITION_ENTER) {
             EventBus.getDefault().post(GeofenceEvent())
         }

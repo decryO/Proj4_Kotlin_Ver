@@ -3,24 +3,21 @@ package com.example.proj4_kotlin_ver
 import android.Manifest
 import android.app.*
 import android.bluetooth.BluetoothA2dp
-import android.bluetooth.BluetoothAdapter
-import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.content.pm.PackageManager
-import android.location.Location
-import android.os.Build
-import android.os.Bundle
-import android.os.IBinder
-import android.widget.Toast
+import android.os.*
 import androidx.core.app.ActivityCompat
 import androidx.core.app.NotificationCompat
-import com.google.android.gms.common.api.GoogleApi
 import com.google.android.gms.common.api.GoogleApiClient
-import com.google.android.gms.location.*
+import com.google.android.gms.location.Geofence
+import com.google.android.gms.location.GeofencingClient
+import com.google.android.gms.location.GeofencingRequest
+import com.google.android.gms.location.LocationServices
 import org.greenrobot.eventbus.EventBus
 import org.greenrobot.eventbus.Subscribe
+
 
 class GeoFencingService : Service(), GoogleApiClient.ConnectionCallbacks, HeadSetPlugReceiver.Callback {
 
@@ -30,7 +27,6 @@ class GeoFencingService : Service(), GoogleApiClient.ConnectionCallbacks, HeadSe
     private lateinit var channelID: String
     private lateinit var headSetPlugReceiver: HeadSetPlugReceiver
     private lateinit var intentFilter: IntentFilter
-    private lateinit var georeceiver: GeofenceBroadcastReceiver
 
     private var geofenceList = mutableListOf<Geofence>()
 
@@ -61,23 +57,6 @@ class GeoFencingService : Service(), GoogleApiClient.ConnectionCallbacks, HeadSe
         geofencingClient = LocationServices.getGeofencingClient(this)
 
         EventBus.getDefault().register(this)
-        // headplugreceiverのように
-//        georeceiver = object : BroadcastReceiver() {
-//            override fun onReceive(context: Context?, intent: Intent?) {
-//                val geofencingEvent = GeofencingEvent.fromIntent(intent)
-//                if (geofencingEvent.hasError()) {
-//                    return
-//                }
-//
-//                // Get the transition type.
-//                val geofenceTransition = geofencingEvent.geofenceTransition
-//
-//                // Test that the reported transition was of interest.
-//                if (geofenceTransition == Geofence.GEOFENCE_TRANSITION_ENTER) {
-//                    println("指定範囲に入りました")
-//                }
-//            }
-//        }
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
@@ -135,7 +114,44 @@ class GeoFencingService : Service(), GoogleApiClient.ConnectionCallbacks, HeadSe
     @Subscribe
     fun onEvent(event: GeofenceEvent) {
         println("とうちゃく！！")
-        
+        stopForeground(true)
+        println("通知削除！！")
+        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            // 通知のタイトル
+            val name = "駅に到着しました！！"
+
+            // 通知の説明
+            val descriptionText = "停止を押すとアラームを停止します"
+
+            // 通知の重要度 ここでは通知バーに表示されるが音は出ない設定(IMPORTANCE_LOW)
+            val importance = NotificationManager.IMPORTANCE_HIGH
+
+            val mChannel = NotificationChannel("dasfgsefa", name, importance)
+            mChannel.apply {
+                description = descriptionText
+            }
+
+            val notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+            notificationManager.createNotificationChannel(mChannel)
+
+            // 通知をタップしたときにアプリを起動するために必要
+            val returnIntent = Intent(this, MainActivity::class.java)
+            val stackBuilder: TaskStackBuilder = TaskStackBuilder.create(this)
+            stackBuilder.addNextIntentWithParentStack(returnIntent)
+            val pendingIntent: PendingIntent =
+                stackBuilder.getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT)
+
+            val notify = NotificationCompat
+                .Builder(this, "dasfgsefa")
+                .apply {
+                    setSmallIcon(R.drawable.ic_notify)
+                    setContentText(descriptionText)
+                    setContentTitle(name)
+                    setContentIntent(pendingIntent)
+                    setAutoCancel(true)
+                }.build()
+            notificationManager.notify(SystemClock.uptimeMillis().toInt(), notify)
+        }
     }
 
     override fun onDestroy() {

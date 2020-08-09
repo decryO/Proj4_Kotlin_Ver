@@ -7,7 +7,7 @@ import android.os.Bundle
 import androidx.fragment.app.DialogFragment
 
 
-class MyDialogFragment : DialogFragment() {
+class LiseDialogFragment : DialogFragment() {
 
     private lateinit var listener: MyDialogFragmentListener
 
