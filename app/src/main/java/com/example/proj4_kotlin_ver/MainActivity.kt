@@ -37,12 +37,6 @@ class MainActivity : AppCompatActivity() {
         }else{
             replaceFragment(mapsFragment)
         }
-
-        val sharedPref = getPreferences(Context.MODE_PRIVATE)
-        ringtone_String = sharedPref.getString(getString(R.string.saved_ringtone), null)
-        if (ringtone_String != null) {
-            ringtone_uri = Uri.parse(ringtone_String)
-        }
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
@@ -53,8 +47,14 @@ class MainActivity : AppCompatActivity() {
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when(item.itemId) {
             R.id.setting -> {
+                val sharedPref = getPreferences(Context.MODE_PRIVATE)
+                ringtone_String = sharedPref.getString(getString(R.string.saved_ringtone), null)
+                if (ringtone_String != null) {
+                    ringtone_uri = Uri.parse(ringtone_String)
+                }
+
                 val intent = Intent(RingtoneManager.ACTION_RINGTONE_PICKER)
-                intent.putExtra(RingtoneManager.EXTRA_RINGTONE_TITLE, "タイトル")
+                intent.putExtra(RingtoneManager.EXTRA_RINGTONE_TITLE, getString(R.string.settingTitle))
                 intent.putExtra(RingtoneManager.EXTRA_RINGTONE_SHOW_SILENT, false) // サイレントは見せない
 
                 intent.putExtra(
@@ -91,6 +91,7 @@ class MainActivity : AppCompatActivity() {
                 putString(getString(R.string.saved_ringtone), uri.toString())
                 commit()
             }
+            println(ringtone.getTitle(this))
         }else{
             super.onActivityResult(requestCode, resultCode, data)
         }
