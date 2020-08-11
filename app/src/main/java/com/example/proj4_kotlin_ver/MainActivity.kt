@@ -27,16 +27,25 @@ class MainActivity : AppCompatActivity() {
     private var ringtone_String: String? = null
     private lateinit var ringtone_uri: Uri
 
+    private val mapsFragment = MapsFragment()
+    private val alarmStopFragment = AlarmStopFragment()
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        val mapsFragment = MapsFragment()
-        val alarmStopFragment = AlarmStopFragment()
-
         setSupportActionBar(tool_bar)
 
         // アプリを開いた時にアラームがセットされていればストップ機能を有したFragmentを表示する
+        if(isServiceWorking(GeoFencingService::class.java)) {
+            replaceFragment(alarmStopFragment)
+        }else{
+            replaceFragment(mapsFragment)
+        }
+    }
+
+    override fun onResume() {
+        super.onResume()
         if(isServiceWorking(GeoFencingService::class.java)) {
             replaceFragment(alarmStopFragment)
         }else{

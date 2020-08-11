@@ -86,6 +86,7 @@ class GeoFencingService : Service(), GoogleApiClient.ConnectionCallbacks, HeadSe
 
         if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             // 通知のタイトル
+            // アプリごとの通知の詳細設定をする際ここの名前が一覧で出てくるためわかりやすい名前にする
             val name = getString(R.string.notify_name)
 
             // 通知の説明
@@ -138,8 +139,8 @@ class GeoFencingService : Service(), GoogleApiClient.ConnectionCallbacks, HeadSe
         if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             val vib: LongArray = longArrayOf(100, 0, 100, 0, 100, 0)
 
-            val name = "駅に到着"
-            val descriptionText = "停止を押すとアラームを停止します"
+            val name = getString(R.string.notify_enteredStation_name)
+            val descriptionText = getString(R.string.notify_enteredStation_description)
             val importance = NotificationManager.IMPORTANCE_HIGH
 
             val mChannel = NotificationChannel(channelID2, name, importance)
@@ -155,11 +156,8 @@ class GeoFencingService : Service(), GoogleApiClient.ConnectionCallbacks, HeadSe
             notificationManager.createNotificationChannel(mChannel)
 
             // 通知をタップしたときにアプリを起動するために必要
-            val returnIntent = Intent(this, MainActivity::class.java)
-            val stackBuilder: TaskStackBuilder = TaskStackBuilder.create(this)
-            stackBuilder.addNextIntentWithParentStack(returnIntent)
-            val pendingIntent: PendingIntent =
-                stackBuilder.getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT)
+            val stopIntent = Intent(this, ServiceStopBroadcastReceiver::class.java)
+            val stopPendingIntent: PendingIntent = PendingIntent.getBroadcast(this, 0, stopIntent, 0)
             // 空のフルスクリーンIntentを設定することで通知を意図的に消すまで上に残り続ける
             val fullScreenPendingIntent = PendingIntent.getActivity(this, 0, Intent(), 0)
 
@@ -167,12 +165,13 @@ class GeoFencingService : Service(), GoogleApiClient.ConnectionCallbacks, HeadSe
                 .Builder(this, channelID2)
                 .apply {
                     setSmallIcon(R.drawable.ic_notify)
-                    setContentTitle(descriptionText)
+                    setContentTitle("${station}${getString(R.string.notify_enteredStation_title)}")
+                    setContentText(descriptionText)
                     setCategory(NotificationCompat.CATEGORY_ALARM)
                     setOngoing(true)
                     setVibrate(vib)
                     setFullScreenIntent(fullScreenPendingIntent, true)
-                    addAction(0, getString(R.string.alarm_stop), pendingIntent)
+                    addAction(0, getString(R.string.alarm_stop), stopPendingIntent)
                 }.build()
 //            notificationManager.notify(SystemClock.uptimeMillis().toInt(), notify)
             startForeground(2, notify)
@@ -192,17 +191,11 @@ class GeoFencingService : Service(), GoogleApiClient.ConnectionCallbacks, HeadSe
                 println("削除失敗！")
             }
         }
-        mediaPlayer.stop()
+        if(mediaPlayer.isPlaying) mediaPlayer.stop()
     }
 
-    override fun onEventInvoked(state: Boolean) {
-        headSetFlag = state
-        if (headSetFlag) {
-            println("接続されている")
-        }else{
-            println("切断されている")
-        }
-    }
+    // ヘッドセットが接続・切断されるとheadSetFlagを切り替える
+    override fun onEventInvoked(state: Boolean) { headSetFlag = state }
 
     override fun onConnected(p0: Bundle?) {
         geofenceList.add(Geofence.Builder()
@@ -232,9 +225,7 @@ class GeoFencingService : Service(), GoogleApiClient.ConnectionCallbacks, HeadSe
         }.build()
     }
 
-    override fun onConnectionSuspended(p0: Int) {
-
-    }
+    override fun onConnectionSuspended(p0: Int) {}
 
     // ヘッドホンが接続されたことを感知するブロードキャストレシーバーを追加する
     private fun registerReceiver() {

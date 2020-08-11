@@ -7,7 +7,9 @@
     <string name="notify_channel_id2">proj4_channel_02</string>
     <string name="notify_name">アラームをセット中</string>
     <string name="notify_description">駅にアラームをセット中です</string>
-    <string name="notify_enteredStation_description">駅に到着しました</string>
+    <string name="notify_enteredStation_name">駅に接近</string>
+    <string name="notify_enteredStation_title">駅に近づいています</string>
+    <string name="notify_enteredStation_description">"停止を押すとアラームを停止します"</string>
 
     <string name="alarm_stop">停止</string>
 
