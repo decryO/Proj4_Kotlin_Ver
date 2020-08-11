@@ -7,7 +7,14 @@ import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.content.pm.PackageManager
-import android.os.*
+import android.graphics.Color
+import android.media.AudioManager
+import android.media.MediaPlayer
+import android.net.Uri
+import android.os.Build
+import android.os.Bundle
+import android.os.IBinder
+import android.os.SystemClock
 import androidx.core.app.ActivityCompat
 import androidx.core.app.NotificationCompat
 import com.google.android.gms.common.api.GoogleApiClient
@@ -25,8 +32,12 @@ class GeoFencingService : Service(), GoogleApiClient.ConnectionCallbacks, HeadSe
     private lateinit var geofencingClient: GeofencingClient
     // 通知を作成する際に必要なID
     private lateinit var channelID: String
+    private lateinit var channelID2: String
+
+    private val mediaPlayer = MediaPlayer()
     private lateinit var headSetPlugReceiver: HeadSetPlugReceiver
     private lateinit var intentFilter: IntentFilter
+    private lateinit var ringtone_uri: Uri
 
     private var geofenceList = mutableListOf<Geofence>()
 
@@ -39,7 +50,6 @@ class GeoFencingService : Service(), GoogleApiClient.ConnectionCallbacks, HeadSe
 
     private val geofencePendingIntent: PendingIntent by lazy {
         val intent = Intent(this, GeofenceBroadcastReceiver::class.java)
-        println("こねくてっど！")
         PendingIntent.getBroadcast(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT)
     }
 
@@ -61,13 +71,15 @@ class GeoFencingService : Service(), GoogleApiClient.ConnectionCallbacks, HeadSe
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         // Foreground Serviceにするため通知を作成する
-        channelID = getString(R.string.notify_channel_id)
+        channelID = getString(R.string.notify_channel_id1)
+        channelID2 = getString(R.string.notify_channel_id2)
 
         if (intent != null) {
             lat = intent.getDoubleExtra("Lat", 0.0)
             lng = intent.getDoubleExtra("Lng", 0.0)
             radius = intent.getFloatExtra("radius", 0.0F)
             station = intent.getStringExtra("station")
+            ringtone_uri = Uri.parse(intent.getStringExtra("ringtone"))
         }
 
         registerReceiver()
@@ -113,22 +125,30 @@ class GeoFencingService : Service(), GoogleApiClient.ConnectionCallbacks, HeadSe
 
     @Subscribe
     fun onEvent(event: GeofenceEvent) {
-        println("とうちゃく！！")
+        // 通知を変えるために前の通知を消す
         stopForeground(true)
-        println("通知削除！！")
+
+        // 有線・無線イヤホン等をしているときに限りアラームを鳴動させる
+        if(headSetFlag){
+            mediaPlayer.setDataSource(applicationContext, ringtone_uri)
+            mediaPlayer.prepare()
+            mediaPlayer.start()
+        }
+
         if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            // 通知のタイトル
-            val name = "駅に到着しました！！"
+            val vib: LongArray = longArrayOf(100, 0, 100, 0, 100, 0)
 
-            // 通知の説明
+            val name = "駅に到着"
             val descriptionText = "停止を押すとアラームを停止します"
-
-            // 通知の重要度 ここでは通知バーに表示されるが音は出ない設定(IMPORTANCE_LOW)
             val importance = NotificationManager.IMPORTANCE_HIGH
 
-            val mChannel = NotificationChannel("dasfgsefa", name, importance)
+            val mChannel = NotificationChannel(channelID2, name, importance)
             mChannel.apply {
                 description = descriptionText
+                lockscreenVisibility = Notification.VISIBILITY_PUBLIC
+                vibrationPattern = vib
+                setSound(null, null)
+                enableVibration(true)
             }
 
             val notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
@@ -140,29 +160,44 @@ class GeoFencingService : Service(), GoogleApiClient.ConnectionCallbacks, HeadSe
             stackBuilder.addNextIntentWithParentStack(returnIntent)
             val pendingIntent: PendingIntent =
                 stackBuilder.getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT)
+            // 空のフルスクリーンIntentを設定することで通知を意図的に消すまで上に残り続ける
+            val fullScreenPendingIntent = PendingIntent.getActivity(this, 0, Intent(), 0)
 
             val notify = NotificationCompat
-                .Builder(this, "dasfgsefa")
+                .Builder(this, channelID2)
                 .apply {
                     setSmallIcon(R.drawable.ic_notify)
-                    setContentText(descriptionText)
-                    setContentTitle(name)
-                    setContentIntent(pendingIntent)
-                    setAutoCancel(true)
+                    setContentTitle(descriptionText)
+                    setCategory(NotificationCompat.CATEGORY_ALARM)
+                    setOngoing(true)
+                    setVibrate(vib)
+                    setFullScreenIntent(fullScreenPendingIntent, true)
+                    addAction(0, getString(R.string.alarm_stop), pendingIntent)
                 }.build()
-            notificationManager.notify(SystemClock.uptimeMillis().toInt(), notify)
+//            notificationManager.notify(SystemClock.uptimeMillis().toInt(), notify)
+            startForeground(2, notify)
         }
     }
 
     override fun onDestroy() {
         super.onDestroy()
+        googleApiClient.disconnect()
         unregisterReceiver(headSetPlugReceiver)
         EventBus.getDefault().unregister(this)
+        geofencingClient?.removeGeofences(geofencePendingIntent)?.run {
+            addOnSuccessListener {
+                println("削除官僚！")
+            }
+            addOnFailureListener {
+                println("削除失敗！")
+            }
+        }
+        mediaPlayer.stop()
     }
 
     override fun onEventInvoked(state: Boolean) {
         headSetFlag = state
-        if(state) {
+        if (headSetFlag) {
             println("接続されている")
         }else{
             println("切断されている")
@@ -170,7 +205,6 @@ class GeoFencingService : Service(), GoogleApiClient.ConnectionCallbacks, HeadSe
     }
 
     override fun onConnected(p0: Bundle?) {
-        println("こねくてっど！")
         geofenceList.add(Geofence.Builder()
             .setRequestId("geofencing")
             .setCircularRegion(lat, lng, radius)
@@ -186,12 +220,8 @@ class GeoFencingService : Service(), GoogleApiClient.ConnectionCallbacks, HeadSe
             return
         }
         geofencingClient.addGeofences(getGeofencingRequest(), geofencePendingIntent)?.run {
-            addOnSuccessListener {
-                println("あははははっははははははは")
-            }
-            addOnFailureListener {
-                println("っかかあっかかかかっかっかか")
-            }
+            addOnSuccessListener { }
+            addOnFailureListener { }
         }
     }
 

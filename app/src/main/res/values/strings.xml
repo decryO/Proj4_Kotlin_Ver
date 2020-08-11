@@ -3,10 +3,13 @@
     <string name="title_activity_maps">Map</string>
     <string name="alarmButton_Start">アラームセット</string>
     <string name="alarmButton_Stop">アラームストップ</string>
-    <string name="notify_channel_id">proj4_channel_01</string>
-    <string name="notify_name">乗り過ごし防止アラーム</string>
+    <string name="notify_channel_id1">proj4_channel_01</string>
+    <string name="notify_channel_id2">proj4_channel_02</string>
+    <string name="notify_name">アラームをセット中</string>
     <string name="notify_description">駅にアラームをセット中です</string>
     <string name="notify_enteredStation_description">駅に到着しました</string>
+
+    <string name="alarm_stop">停止</string>
 
     <string name="settingTitle">アラーム音設定</string>
     <string name="aboutAppTitle">このアプリについて</string>

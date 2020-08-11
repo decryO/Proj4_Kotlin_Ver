@@ -12,7 +12,7 @@
         android:layout_height="wrap_content"
         android:text="TextView"
         android:textSize="50sp"
-        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintBottom_toTopOf="@+id/alarmStop"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />

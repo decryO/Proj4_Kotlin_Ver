@@ -3,6 +3,8 @@ package com.example.proj4_kotlin_ver
 import android.content.Context
 import android.content.Intent
 import android.graphics.Color
+import android.media.RingtoneManager
+import android.net.Uri
 import android.os.Bundle
 import android.text.Editable
 import android.view.LayoutInflater
@@ -27,6 +29,7 @@ import org.json.JSONObject
 class MapsFragment : Fragment(), OnMapReadyCallback, View.OnClickListener, LiseDialogFragment.MyDialogFragmentListener {
 
     private lateinit var mMap: GoogleMap
+    private var ringtone_String: String? = null
     // デフォルトの座標(京都)
     private var latLng = LatLng(34.985458, 135.7577551)
     private var alertRadius: Double = 100.0
@@ -184,19 +187,21 @@ class MapsFragment : Fragment(), OnMapReadyCallback, View.OnClickListener, LiseD
     }
 
     private fun alarmStartButtonSelected() {
-        val serviceIntent = Intent(activity, GeoFencingService::class.java)
-        serviceIntent.putExtra("Lat", latLng.latitude)
-        serviceIntent.putExtra("Lng", latLng.longitude)
-        serviceIntent.putExtra("radius", alertRadius.toFloat())
-        serviceIntent.putExtra("station", selectedStation)
-        activity?.startForegroundService(serviceIntent)
-
         val sharedPref = activity?.getPreferences(Context.MODE_PRIVATE) ?: return
         with(sharedPref.edit()) {
             putString(getString(R.string.saved_station), selectedStation)
             putInt(getString(R.string.saved_radius), alertRadius.toInt())
             commit()
         }
+        ringtone_String = sharedPref.getString(getString(R.string.saved_ringtone), RingtoneManager.getDefaultUri(RingtoneManager.TYPE_RINGTONE).toString())
+
+        val serviceIntent = Intent(activity, GeoFencingService::class.java)
+        serviceIntent.putExtra("Lat", latLng.latitude)
+        serviceIntent.putExtra("Lng", latLng.longitude)
+        serviceIntent.putExtra("radius", alertRadius.toFloat())
+        serviceIntent.putExtra("station", selectedStation)
+        serviceIntent.putExtra("ringtone", ringtone_String)
+        activity?.startForegroundService(serviceIntent)
 
         val transaction = activity?.supportFragmentManager?.beginTransaction().apply {
             val fragmentManager = fragmentManager

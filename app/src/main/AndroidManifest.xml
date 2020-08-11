@@ -8,6 +8,10 @@
     -->
     <!-- 位置情報を取得する -->
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <uses-permission android:name="android.permission.VIBRATE"/>
+    <!--  アラーム通知が数秒で消えるのを防ぐ  -->
+    <uses-permission android:name="android.permission.USE_FULL_SCREEN_INTENT" />
     <uses-permission android:name="android.permission.ACCESS_BACKGROUND_LOCATION" /> <!-- HTTP通信をする -->
     <uses-permission android:name="android.permission.BLUETOOTH" />
     <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
@@ -33,11 +37,6 @@
             </intent-filter>
         </activity>
 
-        <activity
-            android:name=".AlertDialogActivity"
-            android:theme="@style/Theme.AppCompat"
-            android:launchMode="singleInstance" />
-
         <service
             android:name=".GeoFencingService"
             android:enabled="true"
@@ -52,7 +51,10 @@
             </intent-filter>
         </receiver>
 
-        <receiver android:name=".GeofenceBroadcastReceiver"/>
+        <receiver
+            android:name=".GeofenceBroadcastReceiver"
+            android:enabled="true"
+            android:exported="true"/>
 
         <!--
              The API key for Google Maps-based APIs is defined as a string resource.

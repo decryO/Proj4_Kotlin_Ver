@@ -16,6 +16,7 @@ class GeofenceBroadcastReceiver: BroadcastReceiver() {
         }
 
         val geofenceTransition = geofencingEvent.geofenceTransition
+        println("つうちきました")
 
         // HeadsetPlugreceiverのようにcontext as callbackとするとエラーになるのでEventBusを使用する
         if (geofenceTransition == Geofence.GEOFENCE_TRANSITION_ENTER) {
