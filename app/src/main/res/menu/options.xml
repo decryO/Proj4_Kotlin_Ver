@@ -4,6 +4,9 @@
         android:id="@+id/setting"
         android:title="@string/settingTitle" />
     <item
+        android:id="@+id/stationsDetail"
+        android:title="@string/stationsDetailTitle" />
+    <item
         android:id="@+id/aboutApp"
         android:title="@string/aboutAppTitle" />
 </menu>

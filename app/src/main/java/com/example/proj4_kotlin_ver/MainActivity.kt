@@ -17,6 +17,8 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import androidx.fragment.app.Fragment
+import com.google.android.gms.oss.licenses.OssLicensesActivity
+import com.google.android.gms.oss.licenses.OssLicensesMenuActivity
 import kotlinx.android.synthetic.main.activity_main.*
 
 
@@ -89,7 +91,12 @@ class MainActivity : AppCompatActivity() {
                 startActivityForResult(intent, 1)
                 return true
             }
+            R.id.stationsDetail -> {
+                startActivity(Intent(this, StationsDetailActivity::class.java))
+                return true
+            }
             R.id.aboutApp -> {
+                startActivity(Intent(this, OssLicensesMenuActivity::class.java))
                 return true
             }
             else -> return super.onOptionsItemSelected(item)

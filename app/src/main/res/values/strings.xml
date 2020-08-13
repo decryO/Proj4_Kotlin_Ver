@@ -14,7 +14,10 @@
     <string name="alarm_stop">停止</string>
 
     <string name="settingTitle">アラーム音設定</string>
-    <string name="aboutAppTitle">このアプリについて</string>
+    <string name="stationsDetailTitle">駅・路線情報について</string>
+    <string name="aboutAppTitle">オープンソースライセンス</string>
+    <string name="heartRailsCredit">このアプリケーションの路線名、駅名、座標等はHeartrails様のAPIより取得し使用しております。</string>
+    <string name="heartRailsURL">http://express.heartrails.com/</string>
 
     <string name="saved_station">駅名</string>
     <string name="saved_radius">半径</string>
