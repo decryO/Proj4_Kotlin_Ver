@@ -4,7 +4,6 @@ import android.content.Context
 import android.content.Intent
 import android.graphics.Color
 import android.media.RingtoneManager
-import android.net.Uri
 import android.os.Bundle
 import android.text.Editable
 import android.view.LayoutInflater
@@ -26,7 +25,7 @@ import kotlinx.android.synthetic.main.activity_maps.*
 import org.json.JSONArray
 import org.json.JSONObject
 
-class MapsFragment : Fragment(), OnMapReadyCallback, View.OnClickListener, LiseDialogFragment.MyDialogFragmentListener {
+class MapsFragment : Fragment(), OnMapReadyCallback, View.OnClickListener, ListDialogFragment.MyDialogFragmentListener {
 
     private lateinit var mMap: GoogleMap
     private var ringtone_String: String? = null
@@ -49,7 +48,7 @@ class MapsFragment : Fragment(), OnMapReadyCallback, View.OnClickListener, LiseD
     // 駅リスト
     private lateinit var stationData: StationData
 
-    private lateinit var liseDialog: LiseDialogFragment
+    private lateinit var listDialog: ListDialogFragment
 
     companion object {
         fun newInstance(): MapsFragment {
@@ -77,7 +76,7 @@ class MapsFragment : Fragment(), OnMapReadyCallback, View.OnClickListener, LiseD
         mapView.onResume()
         mapView.getMapAsync(this)
 
-        liseDialog = LiseDialogFragment()
+        listDialog = ListDialogFragment()
 
         // 単調になるので下に切り分け
         selectPrefecture.setOnClickListener(this)
@@ -234,8 +233,8 @@ class MapsFragment : Fragment(), OnMapReadyCallback, View.OnClickListener, LiseD
         val args = Bundle()
         args.putStringArray("arrays", strArray)
         args.putInt("from", from)
-        liseDialog.arguments = args
-        liseDialog.show(childFragmentManager, "simple")
+        listDialog.arguments = args
+        listDialog.show(childFragmentManager, "simple")
     }
 
     override fun onDialogItemClick(value: Int, from: Int) {
