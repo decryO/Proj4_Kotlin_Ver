@@ -8,14 +8,13 @@
     -->
     <!-- 位置情報を取得する -->
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
-    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.VIBRATE" /> <!-- アラーム通知が数秒で消えるのを防ぐ -->
     <uses-permission android:name="android.permission.USE_FULL_SCREEN_INTENT" />
-    <uses-permission android:name="android.permission.ACCESS_BACKGROUND_LOCATION" /> <!-- HTTP通信をする -->
+    <uses-permission android:name="android.permission.ACCESS_BACKGROUND_LOCATION" />
     <uses-permission android:name="android.permission.BLUETOOTH" />
-    <uses-permission android:name="android.permission.INTERNET" /> <!-- 縦向きでのサポートのみにする場合記載したほうが良い -->
+    <uses-permission android:name="android.permission.INTERNET" /> <!-- HTTP通信をする -->
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" /> <!-- Foreground ServiceをAPI 28以上の環境で使用する際に必要 -->
-    <uses-feature android:name="android.hardware.screen.portrait" />
+    <uses-feature android:name="android.hardware.screen.portrait" /> <!-- 縦向きでのサポートのみにする場合記載したほうが良い -->
 
     <application
         android:allowBackup="true"
@@ -39,7 +38,8 @@
         <service
             android:name=".GeoFencingService"
             android:enabled="true"
-            android:exported="true" />
+            android:exported="true"
+            android:foregroundServiceType="location"/>
 
         <receiver
             android:name=".HeadSetPlugReceiver"

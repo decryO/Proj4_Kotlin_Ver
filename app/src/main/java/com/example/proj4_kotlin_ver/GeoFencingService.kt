@@ -184,12 +184,8 @@ class GeoFencingService : Service(), GoogleApiClient.ConnectionCallbacks, HeadSe
         unregisterReceiver(headSetPlugReceiver)
         EventBus.getDefault().unregister(this)
         geofencingClient?.removeGeofences(geofencePendingIntent)?.run {
-            addOnSuccessListener {
-                println("削除官僚！")
-            }
-            addOnFailureListener {
-                println("削除失敗！")
-            }
+            addOnSuccessListener { }
+            addOnFailureListener { }
         }
         if(mediaPlayer.isPlaying) mediaPlayer.stop()
     }

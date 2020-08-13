@@ -1,23 +1,21 @@
 package com.example.proj4_kotlin_ver
 
+import android.Manifest
 import android.app.ActivityManager
-import android.app.Notification
-import android.app.NotificationChannel
-import android.app.NotificationManager
 import android.content.Context
 import android.content.Intent
-import android.graphics.Color
+import android.content.pm.PackageManager
 import android.media.RingtoneManager
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
+import android.widget.Toast
+import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.app.NotificationCompat
-import androidx.core.app.NotificationManagerCompat
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
-import com.google.android.gms.oss.licenses.OssLicensesActivity
 import com.google.android.gms.oss.licenses.OssLicensesMenuActivity
 import kotlinx.android.synthetic.main.activity_main.*
 
@@ -28,6 +26,7 @@ class MainActivity : AppCompatActivity() {
     private var ringtone = RingtoneManager.getRingtone(this, uri)
     private var ringtone_String: String? = null
     private lateinit var ringtone_uri: Uri
+    private val REQUEST_CODE = 101
 
     private val mapsFragment = MapsFragment()
     private val alarmStopFragment = AlarmStopFragment()
@@ -38,6 +37,31 @@ class MainActivity : AppCompatActivity() {
 
         setSupportActionBar(tool_bar)
 
+        val fineLocationPermission = ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED
+
+        /*
+        位置情報の取得に関して利用者に同意を求める
+        android 10 以降ではService等で位置情報を求める場合にはACCESS_BACKGROUND_LOCATIONのパーミッションが必要となる
+         */
+        if(fineLocationPermission) {
+            if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                val backgroundPermission = ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_BACKGROUND_LOCATION) == PackageManager.PERMISSION_GRANTED
+
+                if(!backgroundPermission) {
+                    requestPermissions(arrayOf(Manifest.permission.ACCESS_BACKGROUND_LOCATION), REQUEST_CODE)
+                }
+            }
+        } else {
+            var permissionArray = arrayOf(Manifest.permission.ACCESS_FINE_LOCATION)
+            if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) permissionArray += Manifest.permission.ACCESS_BACKGROUND_LOCATION
+            requestPermissions(permissionArray, REQUEST_CODE)
+        }
+
+    }
+
+    override fun onResume() {
+        super.onResume()
+
         // アプリを開いた時にアラームがセットされていればストップ機能を有したFragmentを表示する
         if(isServiceWorking(GeoFencingService::class.java)) {
             replaceFragment(alarmStopFragment)
@@ -46,12 +70,23 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    override fun onResume() {
-        super.onResume()
-        if(isServiceWorking(GeoFencingService::class.java)) {
-            replaceFragment(alarmStopFragment)
-        }else{
-            replaceFragment(mapsFragment)
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<out String>,
+        grantResults: IntArray
+    ) {
+        when(requestCode) {
+            REQUEST_CODE -> {
+                if((grantResults.isNotEmpty()) && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    return
+                } else {
+                    Toast.makeText(this, "権限の非許可", Toast.LENGTH_SHORT).show()
+                    finish()
+                }
+            }
+            else -> {
+                Toast.makeText(this, "権限の非許可", Toast.LENGTH_SHORT).show()
+            }
         }
     }
 
