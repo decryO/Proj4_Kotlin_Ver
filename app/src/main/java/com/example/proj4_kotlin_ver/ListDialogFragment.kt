@@ -33,6 +33,7 @@ class ListDialogFragment : DialogFragment() {
                 listener.onDialogItemClick(which, from)
             }
             .setNegativeButton("Cancel") { _, _ ->
+                listener.onDialogItemClick(0, 0)
                 dismiss()
             }
         return builder.create()
