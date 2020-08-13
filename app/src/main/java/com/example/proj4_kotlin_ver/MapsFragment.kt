@@ -86,7 +86,8 @@ class MapsFragment : Fragment(), OnMapReadyCallback, View.OnClickListener, LiseD
         alarmButton.setOnClickListener(this)
 
         // 路線などが選択されていない状態で駅選択ボタンなどが押せてしまうとおかしくなるので都道府県ボタンのみ押せるようにする
-        buttonSetEnable(0)
+        buttonSetDisable()
+        buttonSetEnable()
 
         selectPrefecture.text = if(selectedPrefecture.isNotEmpty()) selectedPrefecture else "都道府県"
         selectLine.text = if(selectedLine.isNotEmpty()) selectedLine else "都道府県を選択してください"
@@ -138,6 +139,8 @@ class MapsFragment : Fragment(), OnMapReadyCallback, View.OnClickListener, LiseD
     }
 
     override fun onClick(v: View) {
+        // クリック連打防止
+        buttonSetDisable()
         when(v.id) {
 
             R.id.selectPrefecture -> {
@@ -213,16 +216,18 @@ class MapsFragment : Fragment(), OnMapReadyCallback, View.OnClickListener, LiseD
         }
     }
 
-    /// from 1: 都道府県 2: 路線 3: 駅
-    private fun buttonSetEnable(from: Int) {
+    private fun buttonSetEnable() {
+        selectPrefecture.isEnabled = true
+        if(selectedPrefecture.isNotEmpty()) selectLine.isEnabled = true
+        if(selectedLine.isNotEmpty()) selectStation.isEnabled = true
+        if(selectedStation.isNotEmpty()) alarmButton.isEnabled = true
+    }
+
+    private fun buttonSetDisable() {
+        selectPrefecture.isEnabled = false
         selectLine.isEnabled = false
         selectStation.isEnabled = false
         alarmButton.isEnabled = false
-
-        selectPrefecture.isEnabled = true
-        if(from > 0) selectLine.isEnabled = true
-        if(from > 1) selectStation.isEnabled = true
-        if(from > 2) alarmButton.isEnabled = true
     }
 
     private fun openListDialog(strArray: Array<String>, from: Int) {
@@ -258,7 +263,7 @@ class MapsFragment : Fragment(), OnMapReadyCallback, View.OnClickListener, LiseD
             }
         }
 
-        buttonSetEnable(from)
+        buttonSetEnable()
 
         selectPrefecture.text = if(selectedPrefecture.isNotEmpty()) selectedPrefecture else "都道府県"
         selectLine.text = if(selectedLine.isNotEmpty()) selectedLine else "都道府県を選択してください"
