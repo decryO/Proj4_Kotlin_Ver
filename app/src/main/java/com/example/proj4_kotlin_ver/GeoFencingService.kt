@@ -3,18 +3,18 @@ package com.example.proj4_kotlin_ver
 import android.Manifest
 import android.app.*
 import android.bluetooth.BluetoothA2dp
+import android.bluetooth.BluetoothAdapter
+import android.bluetooth.BluetoothDevice
+import android.bluetooth.BluetoothProfile
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.content.pm.PackageManager
-import android.graphics.Color
-import android.media.AudioManager
 import android.media.MediaPlayer
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.os.IBinder
-import android.os.SystemClock
 import androidx.core.app.ActivityCompat
 import androidx.core.app.NotificationCompat
 import com.google.android.gms.common.api.GoogleApiClient
@@ -37,7 +37,7 @@ class GeoFencingService : Service(), GoogleApiClient.ConnectionCallbacks, HeadSe
     private val mediaPlayer = MediaPlayer()
     private lateinit var headSetPlugReceiver: HeadSetPlugReceiver
     private lateinit var intentFilter: IntentFilter
-    private lateinit var ringtone_uri: Uri
+    private lateinit var ringtoneUri: Uri
 
     private var geofenceList = mutableListOf<Geofence>()
 
@@ -54,7 +54,7 @@ class GeoFencingService : Service(), GoogleApiClient.ConnectionCallbacks, HeadSe
     }
 
     override fun onBind(intent: Intent): IBinder {
-        throw UnsupportedOperationException("Not yet implemented");
+        throw UnsupportedOperationException("Not yet implemented")
     }
 
     override fun onCreate() {
@@ -79,7 +79,7 @@ class GeoFencingService : Service(), GoogleApiClient.ConnectionCallbacks, HeadSe
             lng = intent.getDoubleExtra("Lng", 0.0)
             radius = intent.getFloatExtra("radius", 0.0F)
             station = intent.getStringExtra("station")
-            ringtone_uri = Uri.parse(intent.getStringExtra("ringtone"))
+            ringtoneUri = Uri.parse(intent.getStringExtra("ringtone"))
         }
 
         registerReceiver()
@@ -124,14 +124,21 @@ class GeoFencingService : Service(), GoogleApiClient.ConnectionCallbacks, HeadSe
         return START_STICKY
     }
 
+    // BroadcastReceiverのほうは接続、切断の検知しかできていないのでここでアプリ起動前にBluetoothヘッドセットが接続されているかを検知する
+    private fun connectedBluetooth(): Boolean {
+        val bluetoothAdapter = BluetoothAdapter.getDefaultAdapter()
+        return (bluetoothAdapter != null && BluetoothProfile.STATE_CONNECTED == bluetoothAdapter.getProfileConnectionState(
+            BluetoothProfile.HEADSET))
+    }
+
     @Subscribe
     fun onEvent(event: GeofenceEvent) {
         // 通知を変えるために前の通知を消す
         stopForeground(true)
 
         // 有線・無線イヤホン等をしているときに限りアラームを鳴動させる
-        if(headSetFlag){
-            mediaPlayer.setDataSource(applicationContext, ringtone_uri)
+        if(headSetFlag || connectedBluetooth()){
+            mediaPlayer.setDataSource(applicationContext, ringtoneUri)
             mediaPlayer.prepare()
             mediaPlayer.start()
         }
@@ -173,7 +180,6 @@ class GeoFencingService : Service(), GoogleApiClient.ConnectionCallbacks, HeadSe
                     setFullScreenIntent(fullScreenPendingIntent, true)
                     addAction(0, getString(R.string.alarm_stop), stopPendingIntent)
                 }.build()
-//            notificationManager.notify(SystemClock.uptimeMillis().toInt(), notify)
             startForeground(2, notify)
         }
     }
@@ -183,7 +189,7 @@ class GeoFencingService : Service(), GoogleApiClient.ConnectionCallbacks, HeadSe
         googleApiClient.disconnect()
         unregisterReceiver(headSetPlugReceiver)
         EventBus.getDefault().unregister(this)
-        geofencingClient?.removeGeofences(geofencePendingIntent)?.run {
+        geofencingClient.removeGeofences(geofencePendingIntent)?.run {
             addOnSuccessListener { }
             addOnFailureListener { }
         }
@@ -228,8 +234,8 @@ class GeoFencingService : Service(), GoogleApiClient.ConnectionCallbacks, HeadSe
         headSetPlugReceiver = HeadSetPlugReceiver()
         intentFilter = IntentFilter()
         intentFilter.addAction(Intent.ACTION_HEADSET_PLUG)
-        intentFilter.addAction(BluetoothA2dp.ACTION_CONNECTION_STATE_CHANGED);
-        intentFilter.addAction(BluetoothA2dp.ACTION_PLAYING_STATE_CHANGED);
+        intentFilter.addAction(BluetoothA2dp.ACTION_CONNECTION_STATE_CHANGED)
+        intentFilter.addAction(BluetoothA2dp.ACTION_PLAYING_STATE_CHANGED)
         registerReceiver(headSetPlugReceiver, intentFilter)
     }
 }
