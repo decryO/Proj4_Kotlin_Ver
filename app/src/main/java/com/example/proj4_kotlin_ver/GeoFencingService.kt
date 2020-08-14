@@ -90,7 +90,7 @@ class GeoFencingService : Service(), GoogleApiClient.ConnectionCallbacks, HeadSe
             val name = getString(R.string.notify_name)
 
             // 通知の説明
-            val descriptionText = "${station}${getString(R.string.notify_description)}"
+            val descriptionText = getString(R.string.notify_description, station)
 
             // 通知の重要度 ここでは通知バーに表示されるが音は出ない設定(IMPORTANCE_LOW)
             val importance = NotificationManager.IMPORTANCE_LOW
@@ -161,18 +161,18 @@ class GeoFencingService : Service(), GoogleApiClient.ConnectionCallbacks, HeadSe
 
             val notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
             notificationManager.createNotificationChannel(mChannel)
-
-            // 通知をタップしたときにアプリを起動するために必要
+            
             val stopIntent = Intent(this, ServiceStopBroadcastReceiver::class.java)
             val stopPendingIntent: PendingIntent = PendingIntent.getBroadcast(this, 0, stopIntent, 0)
-            // 空のフルスクリーンIntentを設定することで通知を意図的に消すまで上に残り続ける
+
+            // 空のフルスクリーンIntentを設定することで通知を消すまで上に残り続ける
             val fullScreenPendingIntent = PendingIntent.getActivity(this, 0, Intent(), 0)
 
             val notify = NotificationCompat
                 .Builder(this, channelID2)
                 .apply {
                     setSmallIcon(R.drawable.ic_notify)
-                    setContentTitle("${station}${getString(R.string.notify_enteredStation_title)}")
+                    setContentTitle(getString(R.string.notify_enteredStation_title, station))
                     setContentText(descriptionText)
                     setCategory(NotificationCompat.CATEGORY_ALARM)
                     setOngoing(true)

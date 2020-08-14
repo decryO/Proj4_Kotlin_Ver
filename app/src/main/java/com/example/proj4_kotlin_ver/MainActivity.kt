@@ -15,11 +15,12 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.FragmentManager
 import com.google.android.gms.oss.licenses.OssLicensesMenuActivity
 import kotlinx.android.synthetic.main.activity_main.*
 
 
-class MainActivity : AppCompatActivity() {
+class MainActivity : AppCompatActivity(), DescriptionDialogFragment.DescriptionDialogListener, PermissionDENIEDDialogFragment.PermissionDENIEDDialogListener {
 
     private var uri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_RINGTONE)
     private var ringtone = RingtoneManager.getRingtone(this, uri)
@@ -29,6 +30,9 @@ class MainActivity : AppCompatActivity() {
 
     private val mapsFragment = MapsFragment()
     private val alarmStopFragment = AlarmStopFragment()
+    private var permissionArray: Array<String> = arrayOf()
+    private val descriptionDialog = DescriptionDialogFragment()
+    private val DENIEDDialog = PermissionDENIEDDialogFragment()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -36,6 +40,7 @@ class MainActivity : AppCompatActivity() {
 
         setSupportActionBar(tool_bar)
 
+        val args = Bundle()
         val fineLocationPermission = ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED
 
         /*
@@ -47,15 +52,21 @@ class MainActivity : AppCompatActivity() {
                 val backgroundPermission = ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_BACKGROUND_LOCATION) == PackageManager.PERMISSION_GRANTED
 
                 if(!backgroundPermission) {
-                    requestPermissions(arrayOf(Manifest.permission.ACCESS_BACKGROUND_LOCATION), requestCode)
+                    permissionArray += Manifest.permission.ACCESS_BACKGROUND_LOCATION
+                    args.putInt("descriptionNumber", 1)
+                    descriptionDialog.arguments = args
+                    descriptionDialog.show(supportFragmentManager, "simple")
                 }
             }
         } else {
-            var permissionArray = arrayOf(Manifest.permission.ACCESS_FINE_LOCATION)
-            if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) permissionArray += Manifest.permission.ACCESS_BACKGROUND_LOCATION
-            requestPermissions(permissionArray, requestCode)
+            permissionArray += Manifest.permission.ACCESS_FINE_LOCATION
+            if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                permissionArray += Manifest.permission.ACCESS_BACKGROUND_LOCATION
+                args.putInt("descriptionNumber", 1)
+            } else args.putInt("descriptionNumber", 0)
+            descriptionDialog.arguments = args
+            descriptionDialog.show(supportFragmentManager, "simple")
         }
-
     }
 
     override fun onResume() {
@@ -79,12 +90,8 @@ class MainActivity : AppCompatActivity() {
                 if((grantResults.isNotEmpty()) && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     return
                 } else {
-                    Toast.makeText(this, "権限の非許可", Toast.LENGTH_SHORT).show()
-                    finish()
+                    DENIEDDialog.show(supportFragmentManager, "simple2")
                 }
-            }
-            else -> {
-                Toast.makeText(this, "権限の非許可", Toast.LENGTH_SHORT).show()
             }
         }
     }
@@ -163,5 +170,14 @@ class MainActivity : AppCompatActivity() {
     private fun isServiceWorking(clazz: Class<*>): Boolean {
         val manager = this.getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager
         return manager.getRunningServices(Integer.MAX_VALUE).any { clazz.name == it.service.className }
+    }
+
+    override fun onDescriptionDialogClick() {
+        requestPermissions(permissionArray, requestCode)
+    }
+
+    // 位置情報の取得が許可されておらずアラームをセットしても何時までたっても起動しないため、乗り過ごし防止のためにアプリを閉じる
+    override fun onDENIEDDialogClick() {
+        finish()
     }
 }

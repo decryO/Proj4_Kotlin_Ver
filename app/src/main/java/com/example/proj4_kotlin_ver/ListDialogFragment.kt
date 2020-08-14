@@ -1,10 +1,11 @@
 package com.example.proj4_kotlin_ver
 
-import android.app.AlertDialog
+import androidx.appcompat.app.AlertDialog
 import android.app.Dialog
 import android.content.Context
 import android.os.Bundle
 import androidx.fragment.app.DialogFragment
+import java.lang.IllegalStateException
 
 
 class ListDialogFragment : DialogFragment() {
@@ -25,17 +26,19 @@ class ListDialogFragment : DialogFragment() {
     }
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
-        val prefecturesList: Array<String> = arguments?.getStringArray("arrays") as Array<String>
-        val from: Int = arguments?.getInt("from") as Int
-        val builder = AlertDialog.Builder(activity)
-        builder.setTitle(R.string.notify_name)
-            .setItems(prefecturesList) { _, which ->
-                listener.onDialogItemClick(which, from)
-            }
-            .setNegativeButton("Cancel") { _, _ ->
-                listener.onDialogItemClick(0, 0)
-                dismiss()
-            }
-        return builder.create()
+        return activity?.let {
+            val prefecturesList: Array<String> = arguments?.getStringArray("arrays") as Array<String>
+            val from: Int = arguments?.getInt("from") as Int
+            val builder = AlertDialog.Builder(it)
+            builder.setTitle(R.string.notify_name)
+                .setItems(prefecturesList) { _, which ->
+                    listener.onDialogItemClick(which, from)
+                }
+                .setNegativeButton(R.string.dialog_close) { _, _ ->
+                    listener.onDialogItemClick(0, 0)
+                    dismiss()
+                }
+            builder.create()
+        } ?: throw IllegalStateException()
     }
 }
