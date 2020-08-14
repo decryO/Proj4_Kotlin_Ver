@@ -13,7 +13,7 @@ class ListDialogFragment : DialogFragment() {
 
     // イベント アイテムが選択されたときに親フラグメントへイベントを配信する
     interface MyDialogFragmentListener {
-        fun onDialogItemClick(num: Int, from: Int)
+        fun onDialogItemClick(value: Int, from: Int)
     }
 
     override fun onAttach(context: Context) {

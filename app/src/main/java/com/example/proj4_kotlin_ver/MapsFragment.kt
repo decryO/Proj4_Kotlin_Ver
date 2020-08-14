@@ -28,7 +28,7 @@ import org.json.JSONObject
 class MapsFragment : Fragment(), OnMapReadyCallback, View.OnClickListener, ListDialogFragment.MyDialogFragmentListener {
 
     private lateinit var mMap: GoogleMap
-    private var ringtone_String: String? = null
+    private var ringtoneString: String? = null
     // デフォルトの座標(京都)
     private var latLng = LatLng(34.985458, 135.7577551)
     private var alertRadius: Double = 100.0
@@ -92,7 +92,7 @@ class MapsFragment : Fragment(), OnMapReadyCallback, View.OnClickListener, ListD
         selectLine.text = if(selectedLine.isNotEmpty()) selectedLine else "都道府県を選択してください"
         selectStation.text = if(selectedStation.isNotEmpty()) selectedStation else "路線を選択してください"
 
-        sliderText.text = "半径${alertRadius}メートルに入ると通知します"
+        sliderText.text = getString(R.string.slider_text, alertRadius.toInt())
 
         prefecturesArray = resources.getStringArray(R.array.prefectures)
     }
@@ -106,7 +106,7 @@ class MapsFragment : Fragment(), OnMapReadyCallback, View.OnClickListener, ListD
         // スライダーが操作され、値が変更されたとき。
         slider.addOnChangeListener { slider, _, _ ->
             alertRadius = slider.value.toDouble()
-            sliderText.text = "半径${alertRadius}メートルに入ると通知します"
+            sliderText.text = getString(R.string.slider_text, alertRadius.toInt())
 
             mMap.clear()
 
@@ -195,17 +195,17 @@ class MapsFragment : Fragment(), OnMapReadyCallback, View.OnClickListener, ListD
             putInt(getString(R.string.saved_radius), alertRadius.toInt())
             commit()
         }
-        ringtone_String = sharedPref.getString(getString(R.string.saved_ringtone), RingtoneManager.getDefaultUri(RingtoneManager.TYPE_RINGTONE).toString())
+        ringtoneString = sharedPref.getString(getString(R.string.saved_ringtone), RingtoneManager.getDefaultUri(RingtoneManager.TYPE_RINGTONE).toString())
 
         val serviceIntent = Intent(activity, GeoFencingService::class.java)
         serviceIntent.putExtra("Lat", latLng.latitude)
         serviceIntent.putExtra("Lng", latLng.longitude)
         serviceIntent.putExtra("radius", alertRadius.toFloat())
         serviceIntent.putExtra("station", selectedStation)
-        serviceIntent.putExtra("ringtone", ringtone_String)
+        serviceIntent.putExtra("ringtone", ringtoneString)
         activity?.startForegroundService(serviceIntent)
 
-        val transaction = activity?.supportFragmentManager?.beginTransaction().apply {
+        activity?.supportFragmentManager?.beginTransaction().apply {
             val fragmentManager = fragmentManager
             if(fragmentManager != null) {
                 val transaction = fragmentManager.beginTransaction()

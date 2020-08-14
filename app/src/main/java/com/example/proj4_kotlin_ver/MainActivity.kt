@@ -12,7 +12,6 @@ import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
 import android.widget.Toast
-import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
@@ -24,9 +23,9 @@ class MainActivity : AppCompatActivity() {
 
     private var uri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_RINGTONE)
     private var ringtone = RingtoneManager.getRingtone(this, uri)
-    private var ringtone_String: String? = null
-    private lateinit var ringtone_uri: Uri
-    private val REQUEST_CODE = 101
+    private var ringtoneString: String? = null
+    private lateinit var ringtoneUri: Uri
+    private val requestCode = 101
 
     private val mapsFragment = MapsFragment()
     private val alarmStopFragment = AlarmStopFragment()
@@ -48,13 +47,13 @@ class MainActivity : AppCompatActivity() {
                 val backgroundPermission = ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_BACKGROUND_LOCATION) == PackageManager.PERMISSION_GRANTED
 
                 if(!backgroundPermission) {
-                    requestPermissions(arrayOf(Manifest.permission.ACCESS_BACKGROUND_LOCATION), REQUEST_CODE)
+                    requestPermissions(arrayOf(Manifest.permission.ACCESS_BACKGROUND_LOCATION), requestCode)
                 }
             }
         } else {
             var permissionArray = arrayOf(Manifest.permission.ACCESS_FINE_LOCATION)
             if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) permissionArray += Manifest.permission.ACCESS_BACKGROUND_LOCATION
-            requestPermissions(permissionArray, REQUEST_CODE)
+            requestPermissions(permissionArray, requestCode)
         }
 
     }
@@ -76,7 +75,7 @@ class MainActivity : AppCompatActivity() {
         grantResults: IntArray
     ) {
         when(requestCode) {
-            REQUEST_CODE -> {
+            this.requestCode -> {
                 if((grantResults.isNotEmpty()) && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     return
                 } else {
@@ -99,9 +98,9 @@ class MainActivity : AppCompatActivity() {
         when(item.itemId) {
             R.id.setting -> {
                 val sharedPref = getPreferences(Context.MODE_PRIVATE)
-                ringtone_String = sharedPref.getString(getString(R.string.saved_ringtone), null)
-                if (ringtone_String != null) {
-                    ringtone_uri = Uri.parse(ringtone_String)
+                ringtoneString = sharedPref.getString(getString(R.string.saved_ringtone), null)
+                if (ringtoneString != null) {
+                    ringtoneUri = Uri.parse(ringtoneString)
                 }
 
                 val intent = Intent(RingtoneManager.ACTION_RINGTONE_PICKER)
@@ -115,10 +114,10 @@ class MainActivity : AppCompatActivity() {
 
                 intent.putExtra(RingtoneManager.EXTRA_RINGTONE_SHOW_DEFAULT, false) // デフォルトは表示しない
 
-                if (ringtone_String != null) {
+                if (ringtoneString != null) {
                     intent.putExtra(
                         RingtoneManager.EXTRA_RINGTONE_EXISTING_URI,
-                        ringtone_uri
+                        ringtoneUri
                     ) //Preferenceがあった場合の選択済み
                 } else if (uri != null) {
                     intent.putExtra(RingtoneManager.EXTRA_RINGTONE_EXISTING_URI, uri) // 選択済みを選択する

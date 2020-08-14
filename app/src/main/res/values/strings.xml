@@ -2,7 +2,7 @@
     <string name="app_name">Proj4_Kotlin_Ver</string>
     <string name="title_activity_maps">Map</string>
     <string name="alarmButton_Start">アラームセット</string>
-    <string name="alarmButton_Stop">アラームストップ</string>
+    <string name="alarmButton_Stop">アラームを解除する</string>
     <string name="notify_channel_id1">proj4_channel_01</string>
     <string name="notify_channel_id2">proj4_channel_02</string>
     <string name="notify_name">アラームをセット中</string>
@@ -10,6 +10,8 @@
     <string name="notify_enteredStation_name">駅に接近</string>
     <string name="notify_enteredStation_title">駅に近づいています</string>
     <string name="notify_enteredStation_description">"停止を押すとアラームを停止します"</string>
+    <string name="slider_text">半径%1$dメートルに入ると通知します</string>
+    <string name="alertStop_text">%1$s駅\n%2$dmでアラームをセット中です</string>
 
     <string name="alarm_stop">停止</string>
 

@@ -11,12 +11,9 @@ class GeofenceBroadcastReceiver: BroadcastReceiver() {
 
     override fun onReceive(context: Context?, intent: Intent?) {
         val geofencingEvent = GeofencingEvent.fromIntent(intent)
-        if (geofencingEvent.hasError()) {
-            return
-        }
+        if (geofencingEvent.hasError()) return
 
         val geofenceTransition = geofencingEvent.geofenceTransition
-        println("つうちきました")
 
         // HeadsetPlugreceiverのようにcontext as callbackとするとエラーになるのでEventBusを使用する
         if (geofenceTransition == Geofence.GEOFENCE_TRANSITION_ENTER) {

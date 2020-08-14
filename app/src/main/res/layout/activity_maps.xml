@@ -12,7 +12,7 @@
         android:id="@+id/mapView"
         android:name="com.google.android.gms.maps.SupportMapFragment"
         android:layout_width="match_parent"
-        android:layout_height="250dp"
+        android:layout_height="225dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
@@ -62,8 +62,7 @@
             android:layout_marginTop="10dp"
             android:layout_marginLeft="20dp"
             android:layout_marginRight="20dp"
-            android:layout_marginBottom="10dp"
-            android:text="都道府県" />
+            android:layout_marginBottom="10dp" />
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/selectLine"
@@ -74,8 +73,7 @@
             android:layout_marginLeft="20dp"
             android:layout_marginRight="20dp"
             android:layout_marginBottom="10dp"
-            android:enabled="false"
-            android:text="路線" />
+            android:enabled="false" />
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/selectStation"
@@ -86,8 +84,7 @@
             android:layout_marginLeft="20dp"
             android:layout_marginRight="20dp"
             android:layout_marginBottom="10dp"
-            android:enabled="false"
-            android:text="駅" />
+            android:enabled="false" />
     </LinearLayout>
 
     <com.google.android.material.button.MaterialButton
@@ -99,6 +96,6 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         android:enabled="false"
-        android:text="アラームセット！" />
+        android:text="@string/alarmButton_Start" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

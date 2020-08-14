@@ -23,7 +23,6 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".StationsDetailActivity"></activity>
         <activity
             android:name=".MainActivity"
             android:label="@string/title_activity_maps"
@@ -34,12 +33,13 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity android:name=".StationsDetailActivity" />
 
         <service
             android:name=".GeoFencingService"
             android:enabled="true"
-            android:exported="true"
-            android:foregroundServiceType="location"/>
+            android:exported="false"
+            android:foregroundServiceType="location" />
 
         <receiver
             android:name=".HeadSetPlugReceiver"

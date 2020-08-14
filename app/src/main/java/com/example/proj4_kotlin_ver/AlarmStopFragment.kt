@@ -8,7 +8,6 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import kotlinx.android.synthetic.main.activity_alarm_stop.*
-import java.util.zip.Inflater
 
 class AlarmStopFragment : Fragment() {
 
@@ -36,13 +35,13 @@ class AlarmStopFragment : Fragment() {
         val savedStation = sharedPref.getString(getString(R.string.saved_station), "aaa")
         val savedRadius = sharedPref.getInt(getString(R.string.saved_radius), 0)
 
-        detailText.text = "${savedStation}駅\n${savedRadius}mでアラームをセット中です"
+        detailText.text = getString(R.string.alertStop_text, savedStation, savedRadius)
 
         alarmStop.setOnClickListener {
             val serviceIntent = Intent(activity, GeoFencingService::class.java)
             activity?.stopService(serviceIntent)
 
-            val transaction = activity?.supportFragmentManager?.beginTransaction().apply {
+            activity?.supportFragmentManager?.beginTransaction().apply {
                 val fragmentManager = fragmentManager
                 if(fragmentManager != null) {
                     val transaction = fragmentManager.beginTransaction()
