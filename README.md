@@ -12,7 +12,7 @@
 
 基本となる画面です。ユーザーは初めての起動時は位置情報の取得の許可が求められます
 
-<img src="/images/main_1.jpg" width="25%" /><img src="/images/main_2.jpg" width="25%" /><img src="/images/station_select.jpg" width="25%" />
+<img src="/images/main_1.jpg" width="25%" />  <img src="/images/main_2.jpg" width="25%" />  <img src="/images/station_select.jpg" width="25%" />
 
 活性となっているボタンを押すと都道府県や、その都道府県にある路線などの一覧がダイアログで出現します。Map下にあるスライダーはユーザーが通知してほしいタイミングを設定するもので、駅からどれだけ離れている場所での通知か分かるようにMapに円を描画しています。メニューを開くとアラームの設定や使用したOSSの一覧、駅情報を取得させていただいているHeartRails様の情報が記載された画面を表示します。
 
@@ -47,4 +47,4 @@
 
 ## 注意
 
-GithubにあがっているものをそのままクローンしてもMapは表示されません。
+GithubにあがっているものをそのままクローンしてもAPIキーがないので動きません。
