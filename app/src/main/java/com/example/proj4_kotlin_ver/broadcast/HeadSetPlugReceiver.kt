@@ -1,7 +1,6 @@
-package com.example.proj4_kotlin_ver
+package com.example.proj4_kotlin_ver.broadcast
 
 import android.bluetooth.BluetoothA2dp
-import android.bluetooth.BluetoothDevice
 import android.bluetooth.BluetoothProfile
 import android.content.BroadcastReceiver
 import android.content.Context

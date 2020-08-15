@@ -1,10 +1,9 @@
-package com.example.proj4_kotlin_ver
+package com.example.proj4_kotlin_ver.service
 
 import android.Manifest
 import android.app.*
 import android.bluetooth.BluetoothA2dp
 import android.bluetooth.BluetoothAdapter
-import android.bluetooth.BluetoothDevice
 import android.bluetooth.BluetoothProfile
 import android.content.Context
 import android.content.Intent
@@ -17,6 +16,11 @@ import android.os.Bundle
 import android.os.IBinder
 import androidx.core.app.ActivityCompat
 import androidx.core.app.NotificationCompat
+import com.example.proj4_kotlin_ver.*
+import com.example.proj4_kotlin_ver.activity.MainActivity
+import com.example.proj4_kotlin_ver.broadcast.GeofenceBroadcastReceiver
+import com.example.proj4_kotlin_ver.broadcast.HeadSetPlugReceiver
+import com.example.proj4_kotlin_ver.broadcast.ServiceStopBroadcastReceiver
 import com.google.android.gms.common.api.GoogleApiClient
 import com.google.android.gms.location.Geofence
 import com.google.android.gms.location.GeofencingClient
@@ -26,7 +30,8 @@ import org.greenrobot.eventbus.EventBus
 import org.greenrobot.eventbus.Subscribe
 
 
-class GeoFencingService : Service(), GoogleApiClient.ConnectionCallbacks, HeadSetPlugReceiver.Callback {
+class GeoFencingService : Service(), GoogleApiClient.ConnectionCallbacks,
+    HeadSetPlugReceiver.Callback {
 
     private lateinit var googleApiClient: GoogleApiClient
     private lateinit var geofencingClient: GeofencingClient
@@ -231,7 +236,8 @@ class GeoFencingService : Service(), GoogleApiClient.ConnectionCallbacks, HeadSe
 
     // ヘッドホンが接続されたことを感知するブロードキャストレシーバーを追加する
     private fun registerReceiver() {
-        headSetPlugReceiver = HeadSetPlugReceiver()
+        headSetPlugReceiver =
+            HeadSetPlugReceiver()
         intentFilter = IntentFilter()
         intentFilter.addAction(Intent.ACTION_HEADSET_PLUG)
         intentFilter.addAction(BluetoothA2dp.ACTION_CONNECTION_STATE_CHANGED)

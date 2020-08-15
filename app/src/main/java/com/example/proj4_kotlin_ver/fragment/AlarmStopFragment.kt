@@ -1,4 +1,4 @@
-package com.example.proj4_kotlin_ver
+package com.example.proj4_kotlin_ver.fragment
 
 import android.content.Context
 import android.content.Intent
@@ -7,13 +7,16 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
+import com.example.proj4_kotlin_ver.service.GeoFencingService
+import com.example.proj4_kotlin_ver.R
 import kotlinx.android.synthetic.main.activity_alarm_stop.*
 
 class AlarmStopFragment : Fragment() {
 
     companion object {
         fun newInstance(): AlarmStopFragment {
-            val fragment = AlarmStopFragment()
+            val fragment =
+                AlarmStopFragment()
             val args = Bundle()
             fragment.arguments = args
             return fragment
@@ -45,7 +48,10 @@ class AlarmStopFragment : Fragment() {
                 val fragmentManager = fragmentManager
                 if(fragmentManager != null) {
                     val transaction = fragmentManager.beginTransaction()
-                    transaction.replace(R.id.container, MapsFragment.newInstance())
+                    transaction.replace(
+                        R.id.container,
+                        MapsFragment.newInstance()
+                    )
                     transaction.commit()
                 }
             }

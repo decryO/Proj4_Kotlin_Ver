@@ -1,4 +1,4 @@
-package com.example.proj4_kotlin_ver
+package com.example.proj4_kotlin_ver.dialog
 
 import android.app.Dialog
 import android.content.Context
@@ -6,6 +6,7 @@ import android.content.DialogInterface
 import android.os.Bundle
 import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.DialogFragment
+import com.example.proj4_kotlin_ver.R
 import java.lang.IllegalStateException
 
 /*

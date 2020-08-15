@@ -1,10 +1,11 @@
-package com.example.proj4_kotlin_ver
+package com.example.proj4_kotlin_ver.activity
 
 import android.content.Intent
 import android.net.Uri
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.MenuItem
+import com.example.proj4_kotlin_ver.R
 import kotlinx.android.synthetic.main.activity_stations_detail.*
 
 class StationsDetailActivity : AppCompatActivity() {

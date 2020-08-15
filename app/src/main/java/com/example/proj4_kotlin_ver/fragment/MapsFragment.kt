@@ -1,4 +1,4 @@
-package com.example.proj4_kotlin_ver
+package com.example.proj4_kotlin_ver.fragment
 
 import android.content.Context
 import android.content.Intent
@@ -10,6 +10,11 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
+import com.example.proj4_kotlin_ver.*
+import com.example.proj4_kotlin_ver.data.StationData
+import com.example.proj4_kotlin_ver.data.StationDetail
+import com.example.proj4_kotlin_ver.dialog.ListDialogFragment
+import com.example.proj4_kotlin_ver.service.GeoFencingService
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
 import com.github.kittinunf.fuel.httpGet
@@ -25,7 +30,8 @@ import kotlinx.android.synthetic.main.activity_maps.*
 import org.json.JSONArray
 import org.json.JSONObject
 
-class MapsFragment : Fragment(), OnMapReadyCallback, View.OnClickListener, ListDialogFragment.MyDialogFragmentListener {
+class MapsFragment : Fragment(), OnMapReadyCallback, View.OnClickListener,
+    ListDialogFragment.MyDialogFragmentListener {
 
     private lateinit var mMap: GoogleMap
     private var ringtoneString: String? = null
@@ -120,7 +126,8 @@ class MapsFragment : Fragment(), OnMapReadyCallback, View.OnClickListener, ListD
         }
 
         // 駅が選択されていればアラームセットボタンを活性化、そうでなければ非活性化
-        selectStation.addTextChangedListener(object : CustomTextWatcher{
+        selectStation.addTextChangedListener(object :
+            CustomTextWatcher {
             override fun afterTextChanged(s: Editable?) {
                 mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, 13F))
 

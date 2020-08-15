@@ -1,10 +1,9 @@
-package com.example.proj4_kotlin_ver
+package com.example.proj4_kotlin_ver.broadcast
 
-import android.app.Activity
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
-import androidx.core.app.ServiceCompat.stopForeground
+import com.example.proj4_kotlin_ver.service.GeoFencingService
 
 class ServiceStopBroadcastReceiver: BroadcastReceiver() {
 

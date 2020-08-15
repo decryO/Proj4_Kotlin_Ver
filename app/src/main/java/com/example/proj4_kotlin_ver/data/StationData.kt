@@ -1,6 +1,4 @@
-package com.example.proj4_kotlin_ver
-
-import com.github.kittinunf.fuel.core.ResponseDeserializable
+package com.example.proj4_kotlin_ver.data
 
 data class StationData(
     val response: Stations

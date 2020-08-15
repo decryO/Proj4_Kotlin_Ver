@@ -24,7 +24,7 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
         <activity
-            android:name=".MainActivity"
+            android:name=".activity.MainActivity"
             android:label="@string/title_activity_maps"
             android:screenOrientation="portrait">
             <intent-filter>
@@ -33,16 +33,16 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".StationsDetailActivity" />
+        <activity android:name=".activity.StationsDetailActivity" />
 
         <service
-            android:name=".GeoFencingService"
+            android:name=".service.GeoFencingService"
             android:enabled="true"
             android:exported="false"
             android:foregroundServiceType="location" />
 
         <receiver
-            android:name=".HeadSetPlugReceiver"
+            android:name=".broadcast.HeadSetPlugReceiver"
             android:enabled="true"
             android:exported="true">
             <intent-filter>
@@ -50,10 +50,10 @@
             </intent-filter>
         </receiver>
         <receiver
-            android:name=".GeofenceBroadcastReceiver"
+            android:name=".broadcast.GeofenceBroadcastReceiver"
             android:enabled="true"
             android:exported="true" />
-        <receiver android:name=".ServiceStopBroadcastReceiver" />
+        <receiver android:name=".broadcast.ServiceStopBroadcastReceiver" />
         <!--
              The API key for Google Maps-based APIs is defined as a string resource.
              (See the file "res/values/google_maps_api.xml").

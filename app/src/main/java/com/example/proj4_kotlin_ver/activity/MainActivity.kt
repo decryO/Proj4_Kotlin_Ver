@@ -1,4 +1,4 @@
-package com.example.proj4_kotlin_ver
+package com.example.proj4_kotlin_ver.activity
 
 import android.Manifest
 import android.app.ActivityManager
@@ -11,16 +11,21 @@ import android.os.Build
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
-import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.FragmentManager
+import com.example.proj4_kotlin_ver.service.GeoFencingService
+import com.example.proj4_kotlin_ver.fragment.MapsFragment
+import com.example.proj4_kotlin_ver.dialog.PermissionDENIEDDialogFragment
+import com.example.proj4_kotlin_ver.R
+import com.example.proj4_kotlin_ver.dialog.DescriptionDialogFragment
+import com.example.proj4_kotlin_ver.fragment.AlarmStopFragment
 import com.google.android.gms.oss.licenses.OssLicensesMenuActivity
 import kotlinx.android.synthetic.main.activity_main.*
 
 
-class MainActivity : AppCompatActivity(), DescriptionDialogFragment.DescriptionDialogListener, PermissionDENIEDDialogFragment.PermissionDENIEDDialogListener {
+class MainActivity : AppCompatActivity(), DescriptionDialogFragment.DescriptionDialogListener,
+    PermissionDENIEDDialogFragment.PermissionDENIEDDialogListener {
 
     private var uri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_RINGTONE)
     private var ringtone = RingtoneManager.getRingtone(this, uri)
@@ -28,11 +33,15 @@ class MainActivity : AppCompatActivity(), DescriptionDialogFragment.DescriptionD
     private lateinit var ringtoneUri: Uri
     private val requestCode = 101
 
-    private val mapsFragment = MapsFragment()
-    private val alarmStopFragment = AlarmStopFragment()
+    private val mapsFragment =
+        MapsFragment()
+    private val alarmStopFragment =
+        AlarmStopFragment()
     private var permissionArray: Array<String> = arrayOf()
-    private val descriptionDialog = DescriptionDialogFragment()
-    private val DENIEDDialog = PermissionDENIEDDialogFragment()
+    private val descriptionDialog =
+        DescriptionDialogFragment()
+    private val DENIEDDialog =
+        PermissionDENIEDDialogFragment()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
