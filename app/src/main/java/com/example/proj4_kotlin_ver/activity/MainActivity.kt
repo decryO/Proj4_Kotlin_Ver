@@ -40,7 +40,7 @@ class MainActivity : AppCompatActivity(), DescriptionDialogFragment.DescriptionD
     private var permissionArray: Array<String> = arrayOf()
     private val descriptionDialog =
         DescriptionDialogFragment()
-    private val DENIEDDialog =
+    private val deniedDialog =
         PermissionDENIEDDialogFragment()
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -96,10 +96,11 @@ class MainActivity : AppCompatActivity(), DescriptionDialogFragment.DescriptionD
     ) {
         when(requestCode) {
             this.requestCode -> {
+                println(grantResults[0])
                 if((grantResults.isNotEmpty()) && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     return
                 } else {
-                    DENIEDDialog.show(supportFragmentManager, "simple2")
+                    deniedDialog.show(supportFragmentManager, "simple2")
                 }
             }
         }

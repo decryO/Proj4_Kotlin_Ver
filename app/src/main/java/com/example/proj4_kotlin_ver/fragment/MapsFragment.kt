@@ -1,19 +1,24 @@
 package com.example.proj4_kotlin_ver.fragment
 
+import android.Manifest
 import android.content.Context
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.graphics.Color
 import android.media.RingtoneManager
+import android.os.Build
 import android.os.Bundle
 import android.text.Editable
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import com.example.proj4_kotlin_ver.*
 import com.example.proj4_kotlin_ver.data.StationData
 import com.example.proj4_kotlin_ver.data.StationDetail
 import com.example.proj4_kotlin_ver.dialog.ListDialogFragment
+import com.example.proj4_kotlin_ver.dialog.PermissionDENIEDDialogFragment
 import com.example.proj4_kotlin_ver.service.GeoFencingService
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
@@ -31,7 +36,7 @@ import org.json.JSONArray
 import org.json.JSONObject
 
 class MapsFragment : Fragment(), OnMapReadyCallback, View.OnClickListener,
-    ListDialogFragment.MyDialogFragmentListener {
+    ListDialogFragment.MyDialogFragmentListener, PermissionDENIEDDialogFragment.PermissionDENIEDDialogListener {
 
     private lateinit var mMap: GoogleMap
     private var ringtoneString: String? = null
@@ -55,6 +60,9 @@ class MapsFragment : Fragment(), OnMapReadyCallback, View.OnClickListener,
     private lateinit var stationData: StationData
 
     private lateinit var listDialog: ListDialogFragment
+
+    private val deniedDialog =
+        PermissionDENIEDDialogFragment()
 
     companion object {
         fun newInstance(): MapsFragment {
@@ -155,7 +163,18 @@ class MapsFragment : Fragment(), OnMapReadyCallback, View.OnClickListener,
             }
             R.id.selectLine -> if(selectedPrefecture.isNotEmpty()) lineButtonSelected(getLineURL + selectedPrefecture)
             R.id.selectStation -> if(selectedLine.isNotEmpty()) stationButtonSelected(getStationURL + selectedLine)
-            R.id.alarmButton -> alarmStartButtonSelected()
+            R.id.alarmButton -> {
+                val fineLocationPermission = activity?.let { ContextCompat.checkSelfPermission(it, Manifest.permission.ACCESS_FINE_LOCATION) } == PackageManager.PERMISSION_GRANTED
+                if(fineLocationPermission) {
+                    if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                        val backgroundPermission = activity?.let { ContextCompat.checkSelfPermission(it, Manifest.permission.ACCESS_BACKGROUND_LOCATION) } == PackageManager.PERMISSION_GRANTED
+
+                        if(!backgroundPermission) {
+                            deniedDialog.show(childFragmentManager, "simple2")
+                        }else alarmStartButtonSelected()
+                    }
+                }else alarmStartButtonSelected()
+            }
         }
     }
 
@@ -276,4 +295,7 @@ class MapsFragment : Fragment(), OnMapReadyCallback, View.OnClickListener,
         selectStation.text = if(selectedStation.isNotEmpty()) selectedStation else getString(R.string.plz_select_station)
     }
 
+    override fun onDENIEDDialogClick() {
+        activity?.finish()
+    }
 }
