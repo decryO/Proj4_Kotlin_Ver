@@ -94,9 +94,9 @@ class MapsFragment : Fragment(), OnMapReadyCallback, View.OnClickListener,
         buttonSetDisable()
         buttonSetEnable()
 
-        selectPrefecture.text = if(selectedPrefecture.isNotEmpty()) selectedPrefecture else "都道府県"
-        selectLine.text = if(selectedLine.isNotEmpty()) selectedLine else "都道府県を選択してください"
-        selectStation.text = if(selectedStation.isNotEmpty()) selectedStation else "路線を選択してください"
+        selectPrefecture.text = if(selectedPrefecture.isNotEmpty()) selectedPrefecture else getString(R.string.plz_select_prefecture)
+        selectLine.text = if(selectedLine.isNotEmpty()) selectedLine else getString(R.string.plz_select_line)
+        selectStation.text = if(selectedStation.isNotEmpty()) selectedStation else getString(R.string.plz_select_station)
 
         sliderText.text = getString(R.string.slider_text, alertRadius.toInt())
 
@@ -271,9 +271,9 @@ class MapsFragment : Fragment(), OnMapReadyCallback, View.OnClickListener,
 
         buttonSetEnable()
 
-        selectPrefecture.text = if(selectedPrefecture.isNotEmpty()) selectedPrefecture else "都道府県"
-        selectLine.text = if(selectedLine.isNotEmpty()) selectedLine else "都道府県を選択してください"
-        selectStation.text = if(selectedStation.isNotEmpty()) selectedStation else "路線を選択してください"
+        selectPrefecture.text = if(selectedPrefecture.isNotEmpty()) selectedPrefecture else getString(R.string.plz_select_prefecture)
+        selectLine.text = if(selectedLine.isNotEmpty()) selectedLine else getString(R.string.plz_select_line)
+        selectStation.text = if(selectedStation.isNotEmpty()) selectedStation else getString(R.string.plz_select_station)
     }
 
 }
