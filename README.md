@@ -37,7 +37,7 @@
 - [Jackson](https://github.com/FasterXML/jackson-module-kotlin)
   - 駅情報のJSONは入れ子になっており情報も多かったので、より簡単にリスト化できるJacksonを用いました。
 
-- EventBus
+- [EventBus](https://github.com/greenrobot/EventBus)
   - ジオフェンスが指定範囲内に入ったときにBroadcastReceiverがそのイベントを受け取りますが、HeadsetPlugReceiverのようにコンテキストをキャストできなかったのでEventBusを用いてGeofenceServiceに通知しています。
 
 - [oss-licenses-plugin](https://github.com/google/play-services-plugins/tree/master/oss-licenses-plugin)
