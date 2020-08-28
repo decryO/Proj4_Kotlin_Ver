@@ -12,7 +12,7 @@
         android:id="@+id/mapView"
         android:name="com.google.android.gms.maps.SupportMapFragment"
         android:layout_width="match_parent"
-        android:layout_height="175dp"
+        android:layout_height="225dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
@@ -25,11 +25,13 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_below="@id/mapView"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="16dp"
         android:textSize="20sp"
+        app:layout_constraintBottom_toTopOf="@+id/slider"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/mapView" />
+        app:layout_constraintStart_toStartOf="parent" />
 
     <com.google.android.material.slider.Slider
         android:id="@+id/slider"
@@ -38,67 +40,51 @@
         android:layout_below="@id/sliderText"
         android:layout_marginStart="16dp"
         android:layout_marginEnd="16dp"
+        android:layout_marginBottom="16dp"
         android:stepSize="50.0"
         android:value="100.0"
         android:valueFrom="100.0"
         android:valueTo="1000.0"
+        app:layout_constraintBottom_toTopOf="@+id/alarmButton"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/sliderText" />
+        app:layout_constraintStart_toStartOf="parent" />
 
-    <LinearLayout
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/searchBtn"
+        android:layout_width="160dp"
+        android:layout_height="160dp"
+        android:text="@string/station_search_Btn"
+        app:icon="@drawable/ic_baseline_search_48"
+        app:iconGravity="textTop"
+        app:layout_constraintBottom_toBottomOf="@+id/sliderText"
+        app:layout_constraintEnd_toStartOf="@+id/listBtn"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/mapView" />
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/listBtn"
+        android:layout_width="160dp"
+        android:layout_height="160dp"
+        android:text="@string/station_list_Btn"
+        app:icon="@drawable/ic_baseline_format_list_bulleted_48"
+        app:iconGravity="textTop"
+        app:layout_constraintBottom_toBottomOf="@+id/sliderText"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toEndOf="@+id/searchBtn"
+        app:layout_constraintTop_toBottomOf="@+id/mapView" />
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/alarmButton"
         android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_marginTop="16dp"
-        android:orientation="vertical"
+        android:layout_height="100dp"
+        android:enabled="false"
+        android:text="@string/alarmButton_Start"
+        android:textSize="20sp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/slider">
-
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/selectPrefecture"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_marginLeft="20dp"
-            android:layout_marginTop="10dp"
-            android:layout_marginRight="20dp"
-            android:layout_marginBottom="10dp"
-            android:layout_weight="1" />
-
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/selectLine"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_marginLeft="20dp"
-            android:layout_marginTop="10dp"
-            android:layout_marginRight="20dp"
-            android:layout_marginBottom="10dp"
-            android:layout_weight="1"
-            android:enabled="false" />
-
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/selectStation"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_marginLeft="20dp"
-            android:layout_marginTop="10dp"
-            android:layout_marginRight="20dp"
-            android:layout_marginBottom="10dp"
-            android:layout_weight="1"
-            android:enabled="false" />
-
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/alarmButton"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_weight="1"
-            android:enabled="false"
-            android:text="@string/alarmButton_Start"
-            android:textSize="20sp"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent" />
-    </LinearLayout>
+        app:layout_constraintStart_toStartOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

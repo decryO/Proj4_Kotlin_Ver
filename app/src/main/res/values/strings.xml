@@ -31,4 +31,6 @@
     <string name="saved_station">駅名</string>
     <string name="saved_radius">半径</string>
     <string name="saved_ringtone">アラーム音</string>
+    <string name="station_search_Btn">駅名で検索</string>
+    <string name="station_list_Btn">リストから選択</string>
 </resources>

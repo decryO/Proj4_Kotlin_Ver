@@ -92,19 +92,9 @@ class MapsFragment : Fragment(), OnMapReadyCallback, View.OnClickListener,
 
         listDialog = ListDialogFragment()
 
-        // 単調になるので下に切り分け
-        selectPrefecture.setOnClickListener(this)
-        selectLine.setOnClickListener(this)
-        selectStation.setOnClickListener(this)
+        listBtn.setOnClickListener(this)
+
         alarmButton.setOnClickListener(this)
-
-        // 路線などが選択されていない状態で駅選択ボタンなどが押せてしまうとおかしくなるので都道府県ボタンのみ押せるようにする
-        buttonSetDisable()
-        buttonSetEnable()
-
-        selectPrefecture.text = if(selectedPrefecture.isNotEmpty()) selectedPrefecture else getString(R.string.plz_select_prefecture)
-        selectLine.text = if(selectedLine.isNotEmpty()) selectedLine else getString(R.string.plz_select_line)
-        selectStation.text = if(selectedStation.isNotEmpty()) selectedStation else getString(R.string.plz_select_station)
 
         sliderText.text = getString(R.string.slider_text, alertRadius.toInt())
 
@@ -134,35 +124,31 @@ class MapsFragment : Fragment(), OnMapReadyCallback, View.OnClickListener,
         }
 
         // 駅が選択されていればアラームセットボタンを活性化、そうでなければ非活性化
-        selectStation.addTextChangedListener(object :
-            CustomTextWatcher {
-            override fun afterTextChanged(s: Editable?) {
-                mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, 13F))
-
-                mMap.clear()
-
-                mMap.addCircle(CircleOptions()
-                    .center(latLng)
-                    .radius(alertRadius)
-                    .strokeColor(Color.RED)
-                    .fillColor(0x220000FF)
-                    .strokeWidth(5F)
-                )
-            }
-        })
+//        selectStation.addTextChangedListener(object :
+//            CustomTextWatcher {
+//            override fun afterTextChanged(s: Editable?) {
+//                mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, 13F))
+//
+//                mMap.clear()
+//
+//                mMap.addCircle(CircleOptions()
+//                    .center(latLng)
+//                    .radius(alertRadius)
+//                    .strokeColor(Color.RED)
+//                    .fillColor(0x220000FF)
+//                    .strokeWidth(5F)
+//                )
+//            }
+//        })
     }
 
     override fun onClick(v: View) {
-        // クリック連打防止
-        buttonSetDisable()
         when(v.id) {
 
-            R.id.selectPrefecture -> {
+            R.id.listBtn -> {
                 val prefecturesArray: Array<String> = resources.getStringArray(R.array.prefectures)
                 openListDialog(prefecturesArray, 1)
             }
-            R.id.selectLine -> if(selectedPrefecture.isNotEmpty()) lineButtonSelected(getLineURL + selectedPrefecture)
-            R.id.selectStation -> if(selectedLine.isNotEmpty()) stationButtonSelected(getStationURL + selectedLine)
             R.id.alarmButton -> {
                 val fineLocationPermission = activity?.let { ContextCompat.checkSelfPermission(it, Manifest.permission.ACCESS_FINE_LOCATION) } == PackageManager.PERMISSION_GRANTED
                 if(fineLocationPermission) {
@@ -241,20 +227,6 @@ class MapsFragment : Fragment(), OnMapReadyCallback, View.OnClickListener,
         }
     }
 
-    private fun buttonSetEnable() {
-        selectPrefecture.isEnabled = true
-        if(selectedPrefecture.isNotEmpty()) selectLine.isEnabled = true
-        if(selectedLine.isNotEmpty()) selectStation.isEnabled = true
-        if(selectedStation.isNotEmpty()) alarmButton.isEnabled = true
-    }
-
-    private fun buttonSetDisable() {
-        selectPrefecture.isEnabled = false
-        selectLine.isEnabled = false
-        selectStation.isEnabled = false
-        alarmButton.isEnabled = false
-    }
-
     private fun openListDialog(strArray: Array<String>, from: Int) {
         val args = Bundle()
         args.putStringArray("arrays", strArray)
@@ -276,10 +248,12 @@ class MapsFragment : Fragment(), OnMapReadyCallback, View.OnClickListener,
                 selectedPrefecture = prefecturesArray[value]
                 selectedLine = ""
                 selectedStation = ""
+                lineButtonSelected(getLineURL + selectedPrefecture)
             }
             2 -> {
                 selectedLine = lineArray[value]
                 selectedStation = ""
+                stationButtonSelected(getStationURL + selectedLine)
             }
             3 -> {
                 val chooseStation: StationDetail = stationData.response.station[value]
@@ -288,11 +262,9 @@ class MapsFragment : Fragment(), OnMapReadyCallback, View.OnClickListener,
             }
         }
 
-        buttonSetEnable()
-
-        selectPrefecture.text = if(selectedPrefecture.isNotEmpty()) selectedPrefecture else getString(R.string.plz_select_prefecture)
-        selectLine.text = if(selectedLine.isNotEmpty()) selectedLine else getString(R.string.plz_select_line)
-        selectStation.text = if(selectedStation.isNotEmpty()) selectedStation else getString(R.string.plz_select_station)
+//        selectPrefecture.text = if(selectedPrefecture.isNotEmpty()) selectedPrefecture else getString(R.string.plz_select_prefecture)
+//        selectLine.text = if(selectedLine.isNotEmpty()) selectedLine else getString(R.string.plz_select_line)
+//        selectStation.text = if(selectedStation.isNotEmpty()) selectedStation else getString(R.string.plz_select_station)
     }
 
     override fun onDENIEDDialogClick() {
