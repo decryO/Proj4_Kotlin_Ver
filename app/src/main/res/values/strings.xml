@@ -1,9 +1,6 @@
 <resources>
     <string name="app_name">乗り過ごし防止</string>
     <string name="title_activity_maps">Map</string>
-    <string name="plz_select_prefecture">都道府県を選択してください</string>
-    <string name="plz_select_line">路線を選択してください</string>
-    <string name="plz_select_station">駅を選択してください</string>
     <string name="alarmButton_Start">アラームセット</string>
     <string name="alarmButton_Stop">アラームを解除する</string>
     <string name="notify_channel_id1">proj4_channel_01</string>
@@ -33,4 +30,7 @@
     <string name="saved_ringtone">アラーム音</string>
     <string name="station_search_Btn">駅名で検索</string>
     <string name="station_list_Btn">リストから選択</string>
+    <string name="prefecture_unselected_text">目的の都道府県を選択してください</string>
+    <string name="line_unselected_text">目的の路線を選択してください</string>
+    <string name="station_unselected_text">目的の駅を選択してください</string>
 </resources>

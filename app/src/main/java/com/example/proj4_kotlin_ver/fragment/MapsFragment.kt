@@ -1,6 +1,7 @@
 package com.example.proj4_kotlin_ver.fragment
 
 import android.Manifest
+import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
@@ -15,16 +16,9 @@ import android.view.ViewGroup
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import com.example.proj4_kotlin_ver.*
-import com.example.proj4_kotlin_ver.data.StationData
-import com.example.proj4_kotlin_ver.data.StationDetail
-import com.example.proj4_kotlin_ver.dialog.ListDialogFragment
+import com.example.proj4_kotlin_ver.activity.PrefectureSelectActivity
 import com.example.proj4_kotlin_ver.dialog.PermissionDENIEDDialogFragment
 import com.example.proj4_kotlin_ver.service.GeoFencingService
-import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
-import com.fasterxml.jackson.module.kotlin.readValue
-import com.github.kittinunf.fuel.httpGet
-import com.github.kittinunf.fuel.json.responseJson
-import com.github.kittinunf.result.Result
 
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
@@ -32,11 +26,9 @@ import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.model.CircleOptions
 import com.google.android.gms.maps.model.LatLng
 import kotlinx.android.synthetic.main.activity_maps.*
-import org.json.JSONArray
-import org.json.JSONObject
 
 class MapsFragment : Fragment(), OnMapReadyCallback, View.OnClickListener,
-    ListDialogFragment.MyDialogFragmentListener, PermissionDENIEDDialogFragment.PermissionDENIEDDialogListener {
+    PermissionDENIEDDialogFragment.PermissionDENIEDDialogListener {
 
     private lateinit var mMap: GoogleMap
     private var ringtoneString: String? = null
@@ -44,22 +36,7 @@ class MapsFragment : Fragment(), OnMapReadyCallback, View.OnClickListener,
     private var latLng = LatLng(34.985458, 135.7577551)
     private var alertRadius: Double = 100.0
 
-    private var selectedPrefecture: String = ""
-    private var selectedLine: String = ""
     private var selectedStation: String = ""
-    // HeartRails様API URL 路線一覧
-    private val getLineURL: String = "https://express.heartrails.com/api/json?method=getLines&prefecture="
-    // HeartRails様API URL 駅一覧
-    private val getStationURL: String = "https://express.heartrails.com/api/json?method=getStations&line="
-
-    // 都道府県リスト
-    private lateinit var prefecturesArray: Array<String>
-    // 路線リスト
-    private lateinit var lineArray: Array<String>
-    // 駅リスト
-    private lateinit var stationData: StationData
-
-    private lateinit var listDialog: ListDialogFragment
 
     private val deniedDialog =
         PermissionDENIEDDialogFragment()
@@ -90,15 +67,11 @@ class MapsFragment : Fragment(), OnMapReadyCallback, View.OnClickListener,
         mapView.onResume()
         mapView.getMapAsync(this)
 
-        listDialog = ListDialogFragment()
-
         listBtn.setOnClickListener(this)
 
         alarmButton.setOnClickListener(this)
 
         sliderText.text = getString(R.string.slider_text, alertRadius.toInt())
-
-        prefecturesArray = resources.getStringArray(R.array.prefectures)
     }
 
     override fun onMapReady(googleMap: GoogleMap) {
@@ -124,30 +97,29 @@ class MapsFragment : Fragment(), OnMapReadyCallback, View.OnClickListener,
         }
 
         // 駅が選択されていればアラームセットボタンを活性化、そうでなければ非活性化
-//        selectStation.addTextChangedListener(object :
-//            CustomTextWatcher {
-//            override fun afterTextChanged(s: Editable?) {
-//                mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, 13F))
-//
-//                mMap.clear()
-//
-//                mMap.addCircle(CircleOptions()
-//                    .center(latLng)
-//                    .radius(alertRadius)
-//                    .strokeColor(Color.RED)
-//                    .fillColor(0x220000FF)
-//                    .strokeWidth(5F)
-//                )
-//            }
-//        })
+        select_station_text.addTextChangedListener(object :
+            CustomTextWatcher {
+            override fun afterTextChanged(s: Editable?) {
+                mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, 13F))
+
+                mMap.clear()
+
+                mMap.addCircle(CircleOptions()
+                    .center(latLng)
+                    .radius(alertRadius)
+                    .strokeColor(Color.RED)
+                    .fillColor(0x220000FF)
+                    .strokeWidth(5F)
+                )
+            }
+        })
     }
 
     override fun onClick(v: View) {
         when(v.id) {
-
             R.id.listBtn -> {
-                val prefecturesArray: Array<String> = resources.getStringArray(R.array.prefectures)
-                openListDialog(prefecturesArray, 1)
+//                openListDialog(prefecturesArray, 1)
+                startActivityForResult(Intent(activity, PrefectureSelectActivity::class.java), 0)
             }
             R.id.alarmButton -> {
                 val fineLocationPermission = activity?.let { ContextCompat.checkSelfPermission(it, Manifest.permission.ACCESS_FINE_LOCATION) } == PackageManager.PERMISSION_GRANTED
@@ -164,38 +136,18 @@ class MapsFragment : Fragment(), OnMapReadyCallback, View.OnClickListener,
         }
     }
 
-    private fun lineButtonSelected(url: String) {
-        url.httpGet().responseJson { _, _, result ->
-            when(result) {
-                is Result.Success -> {
-                    val responseJson = result.get()
-                    lineArray = emptyArray()
-                    val lineObj: JSONArray = (responseJson.obj()["response"] as JSONObject).get("line") as JSONArray
-                    lineArray = Array(lineObj.length()) {
-                        lineObj.getString(it)
-                    }
-
-                    openListDialog(lineArray, 2)
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        if(requestCode == 0 && resultCode == Activity.RESULT_OK) {
+            val extras = data?.extras
+            if(extras != null) {
+                val station = extras.getString("station")
+                latLng = LatLng(extras.getDouble("lat"), extras.getDouble("lng"))
+                if (station != null) {
+                    selectedStation = station
+                    select_station_text.text = station
                 }
-                is Result.Failure -> { }
-            }
-        }
-    }
-
-    private fun stationButtonSelected(url: String) {
-        url.httpGet().responseString { _, _, result ->
-            when(result) {
-                is Result.Success -> {
-                    val mapper = jacksonObjectMapper()
-                    stationData = mapper.readValue(result.value)
-                    var nameArray: Array<String> = emptyArray()
-                    stationData.response.station.forEach {
-                        nameArray += it.name
-                    }
-
-                    openListDialog(nameArray, 3)
-                }
-                is Result.Failure -> { }
+                setAlarmBtnEnable()
             }
         }
     }
@@ -227,44 +179,8 @@ class MapsFragment : Fragment(), OnMapReadyCallback, View.OnClickListener,
         }
     }
 
-    private fun openListDialog(strArray: Array<String>, from: Int) {
-        val args = Bundle()
-        args.putStringArray("arrays", strArray)
-        args.putInt("from", from)
-        listDialog.arguments = args
-        listDialog.show(childFragmentManager, "simple")
-    }
-
-    override fun onDialogItemClick(value: Int, from: Int) {
-        /* fromについて
-        *   1 = 都道府県選択ボタン押下後、都道府県が選択された場合
-        *   2 = 路線選択ボタン押下後、路線が選択された場合
-        *   3 = 駅選択ボタン押下後、駅が選択された場合
-        * */
-
-        // value = -1 はダイアログのキャンセルボタンが押された際の値
-        when(from) {
-            1 -> {
-                selectedPrefecture = prefecturesArray[value]
-                selectedLine = ""
-                selectedStation = ""
-                lineButtonSelected(getLineURL + selectedPrefecture)
-            }
-            2 -> {
-                selectedLine = lineArray[value]
-                selectedStation = ""
-                stationButtonSelected(getStationURL + selectedLine)
-            }
-            3 -> {
-                val chooseStation: StationDetail = stationData.response.station[value]
-                latLng = LatLng(chooseStation.y, chooseStation.x)
-                selectedStation = chooseStation.name
-            }
-        }
-
-//        selectPrefecture.text = if(selectedPrefecture.isNotEmpty()) selectedPrefecture else getString(R.string.plz_select_prefecture)
-//        selectLine.text = if(selectedLine.isNotEmpty()) selectedLine else getString(R.string.plz_select_line)
-//        selectStation.text = if(selectedStation.isNotEmpty()) selectedStation else getString(R.string.plz_select_station)
+    private fun setAlarmBtnEnable() {
+        if(selectedStation.isNotEmpty()) alarmButton.isEnabled = true
     }
 
     override fun onDENIEDDialogClick() {
