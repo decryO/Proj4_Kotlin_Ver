@@ -17,6 +17,7 @@ import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import com.example.proj4_kotlin_ver.*
 import com.example.proj4_kotlin_ver.activity.PrefectureSelectActivity
+import com.example.proj4_kotlin_ver.activity.SearchActivity
 import com.example.proj4_kotlin_ver.dialog.PermissionDENIEDDialogFragment
 import com.example.proj4_kotlin_ver.service.GeoFencingService
 
@@ -67,6 +68,7 @@ class MapsFragment : Fragment(), OnMapReadyCallback, View.OnClickListener,
         mapView.onResume()
         mapView.getMapAsync(this)
 
+        searchBtn.setOnClickListener(this)
         listBtn.setOnClickListener(this)
 
         alarmButton.setOnClickListener(this)
@@ -117,6 +119,10 @@ class MapsFragment : Fragment(), OnMapReadyCallback, View.OnClickListener,
 
     override fun onClick(v: View) {
         when(v.id) {
+            R.id.searchBtn -> {
+                startActivity(Intent(activity, SearchActivity::class.java))
+                println("あああああああああああああああああああ")
+            }
             R.id.listBtn -> {
 //                openListDialog(prefecturesArray, 1)
                 startActivityForResult(Intent(activity, PrefectureSelectActivity::class.java), 0)

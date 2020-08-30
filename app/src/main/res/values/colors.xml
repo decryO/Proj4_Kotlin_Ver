@@ -4,6 +4,8 @@
     <color name="colorPrimaryDark">#3700B3</color>
     <color name="colorAccent">#03DAC5</color>
     <color name="colorUrl">#1A0DAB</color>
+    <color name="white">#FFFFFF</color>
+    <color name="light_gray">#CDCDCD</color>
 <!--    <color name="colorPrimary">#e0e0e0</color>-->
 <!--    <color name="colorPrimaryDark">#FFFFFF</color>-->
 <!--    <color name="colorAccent">#bebebe</color>-->
