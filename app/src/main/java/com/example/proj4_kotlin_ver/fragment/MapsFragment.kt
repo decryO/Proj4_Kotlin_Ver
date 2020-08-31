@@ -120,8 +120,7 @@ class MapsFragment : Fragment(), OnMapReadyCallback, View.OnClickListener,
     override fun onClick(v: View) {
         when(v.id) {
             R.id.searchBtn -> {
-                startActivity(Intent(activity, SearchActivity::class.java))
-                println("あああああああああああああああああああ")
+                startActivityForResult(Intent(activity, SearchActivity::class.java), 200)
             }
             R.id.listBtn -> {
 //                openListDialog(prefecturesArray, 1)
@@ -144,16 +143,19 @@ class MapsFragment : Fragment(), OnMapReadyCallback, View.OnClickListener,
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
-        if(requestCode == 0 && resultCode == Activity.RESULT_OK) {
-            val extras = data?.extras
-            if(extras != null) {
-                val station = extras.getString("station")
-                latLng = LatLng(extras.getDouble("lat"), extras.getDouble("lng"))
-                if (station != null) {
-                    selectedStation = station
-                    select_station_text.text = station
+        if(resultCode == Activity.RESULT_OK) when(requestCode) {
+            // 0 = リストから選択  200 = 検索から選択    2つとも駅名と駅座標を返すので一つにまとめている
+            0, 200 -> {
+                val extras = data?.extras
+                if(extras != null) {
+                    val station = extras.getString("station")
+                    latLng = LatLng(extras.getDouble("lat"), extras.getDouble("lng"))
+                    if (station != null) {
+                        selectedStation = station
+                        select_station_text.text = station
+                    }
+                    setAlarmBtnEnable()
                 }
-                setAlarmBtnEnable()
             }
         }
     }

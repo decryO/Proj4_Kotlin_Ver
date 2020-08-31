@@ -33,5 +33,7 @@
     <string name="prefecture_unselected_text">目的の都道府県を選択してください</string>
     <string name="line_unselected_text">目的の路線を選択してください</string>
     <string name="station_unselected_text">目的の駅を選択してください</string>
+    <string name="search_query_hint">駅名を入力してください</string>
     <string name="search_description">駅の名前のみで検索してください\n(例：「東京駅」 → 「東京」)</string>
+    <string name="search_notfound_description">「%1$s」駅を見つけることができませんでした\n駅の名前のみで検索してください\n(例：「東京駅」 → 「東京」)</string>
 </resources>
