@@ -113,6 +113,10 @@ class MainActivity : AppCompatActivity(), DescriptionDialogFragment.DescriptionD
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when(item.itemId) {
+            R.id.historyBtn -> {
+                startActivityForResult(Intent(this, HistoryActivity::class.java), 100)
+                return true
+            }
             R.id.setting -> {
                 val sharedPref = getPreferences(Context.MODE_PRIVATE)
                 ringtoneString = sharedPref.getString(getString(R.string.saved_ringtone), null)

@@ -8,7 +8,6 @@ import android.widget.ArrayAdapter
 import com.example.proj4_kotlin_ver.R
 import kotlinx.android.synthetic.main.activity_station_select.*
 import kotlinx.android.synthetic.main.activity_station_select.detail_tool_bar
-import kotlinx.android.synthetic.main.activity_stations_detail.*
 
 class StationSelectActivity : AppCompatActivity() {
 
