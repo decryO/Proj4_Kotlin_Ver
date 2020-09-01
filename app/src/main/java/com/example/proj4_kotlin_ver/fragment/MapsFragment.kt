@@ -6,6 +6,7 @@ import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Color
+import android.location.Location
 import android.media.RingtoneManager
 import android.os.Build
 import android.os.Bundle
@@ -20,21 +21,25 @@ import com.example.proj4_kotlin_ver.activity.PrefectureSelectActivity
 import com.example.proj4_kotlin_ver.activity.SearchActivity
 import com.example.proj4_kotlin_ver.dialog.PermissionDENIEDDialogFragment
 import com.example.proj4_kotlin_ver.service.GeoFencingService
+import com.google.android.gms.location.FusedLocationProviderClient
+import com.google.android.gms.location.LocationServices
 
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
-import com.google.android.gms.maps.model.CircleOptions
-import com.google.android.gms.maps.model.LatLng
+import com.google.android.gms.maps.model.*
 import kotlinx.android.synthetic.main.activity_maps.*
 
 class MapsFragment : Fragment(), OnMapReadyCallback, View.OnClickListener,
     PermissionDENIEDDialogFragment.PermissionDENIEDDialogListener {
 
     private lateinit var mMap: GoogleMap
+    private var fusedLocationClient: FusedLocationProviderClient? = null
     private var ringtoneString: String? = null
-    // デフォルトの座標(京都)
-    private var latLng = LatLng(34.985458, 135.7577551)
+    // デフォルトの座標(東京)
+    private var latLng = LatLng(35.681236, 139.767125)
+    // 現在位置を取得するかしないかのフラグ
+    private var station_unselect_flag = true
     private var alertRadius: Double = 100.0
 
     private var selectedStation: String = ""
@@ -74,6 +79,26 @@ class MapsFragment : Fragment(), OnMapReadyCallback, View.OnClickListener,
         alarmButton.setOnClickListener(this)
 
         sliderText.text = getString(R.string.slider_text, alertRadius.toInt())
+    }
+
+    override fun onResume() {
+        super.onResume()
+
+        // 目的の駅が指定されていないときのみ自身の位置情報を取得し、Mapに描画する
+        if(station_unselect_flag) {
+            val fineLocationPermission = activity?.let { ContextCompat.checkSelfPermission(it, Manifest.permission.ACCESS_FINE_LOCATION) } == PackageManager.PERMISSION_GRANTED
+            if(fineLocationPermission) {
+                fusedLocationClient = context?.let { LocationServices.getFusedLocationProviderClient(it) }
+                fusedLocationClient?.let {  it.lastLocation.addOnSuccessListener { location: Location? ->
+                    if (location != null) {
+                        latLng = LatLng(location.latitude, location.longitude)
+                        mMap.clear()
+                        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, 13F))
+                        mMap.addMarker(MarkerOptions().position(latLng).title("現在位置"))
+                    }
+                }}
+            }
+        }
     }
 
     override fun onMapReady(googleMap: GoogleMap) {
@@ -146,6 +171,7 @@ class MapsFragment : Fragment(), OnMapReadyCallback, View.OnClickListener,
         if(resultCode == Activity.RESULT_OK) when(requestCode) {
             // 0 = リストから選択  200 = 検索から選択    2つとも駅名と駅座標を返すので一つにまとめている
             0, 200 -> {
+                station_unselect_flag = false
                 val extras = data?.extras
                 if(extras != null) {
                     val station = extras.getString("station")

@@ -126,7 +126,7 @@ class MainActivity : AppCompatActivity(), DescriptionDialogFragment.DescriptionD
 
                 val intent = Intent(RingtoneManager.ACTION_RINGTONE_PICKER)
                 intent.putExtra(RingtoneManager.EXTRA_RINGTONE_TITLE, getString(R.string.settingTitle))
-                intent.putExtra(RingtoneManager.EXTRA_RINGTONE_SHOW_SILENT, false) // サイレントは見せない
+                intent.putExtra(RingtoneManager.EXTRA_RINGTONE_SHOW_SILENT, true) // サイレントも選択可能にする
 
                 intent.putExtra(
                     RingtoneManager.EXTRA_RINGTONE_TYPE,
