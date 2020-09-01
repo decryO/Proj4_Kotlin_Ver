@@ -148,7 +148,6 @@ class MapsFragment : Fragment(), OnMapReadyCallback, View.OnClickListener,
                 startActivityForResult(Intent(activity, SearchActivity::class.java), 200)
             }
             R.id.listBtn -> {
-//                openListDialog(prefecturesArray, 1)
                 startActivityForResult(Intent(activity, PrefectureSelectActivity::class.java), 0)
             }
             R.id.alarmButton -> {

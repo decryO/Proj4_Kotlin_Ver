@@ -6,8 +6,10 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.MenuItem
 import android.widget.ArrayAdapter
+import androidx.fragment.app.DialogFragment
 import com.example.proj4_kotlin_ver.R
 import com.example.proj4_kotlin_ver.data.StationData
+import com.example.proj4_kotlin_ver.dialog.ProgressDialogFragment
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
 import com.github.kittinunf.fuel.httpGet
@@ -21,6 +23,7 @@ class LineSelectActivity : AppCompatActivity() {
     private lateinit var stationData: StationData
     private lateinit var lats: Array<Double>
     private lateinit var lngs: Array<Double>
+    private val progressDialog = ProgressDialogFragment()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -36,6 +39,7 @@ class LineSelectActivity : AppCompatActivity() {
         line_list.adapter = adapter
 
         line_list.setOnItemClickListener { _, _, position, _ ->
+            progressDialog.show(supportFragmentManager, "progress")
             val getStationUrl = "https://express.heartrails.com/api/json?method=getStations&line=${lines[position]}"
             getStationUrl.httpGet().responseString { _, _, result ->
                 when(result) {
@@ -60,6 +64,18 @@ class LineSelectActivity : AppCompatActivity() {
                     is Result.Failure -> { }
                 }
             }
+        }
+    }
+
+    override fun onPause() {
+        super.onPause()
+        /*
+        *   戻るボタンで戻ってきた際にプログレスバーが表示されっぱなしにならないようにする
+        *   progressDialog.dismiss()とするとRuntimeErrorになるので注意
+        *   findFragmentByTagでtagが同じDialogがあればdismissするという感じ
+        */
+        supportFragmentManager.findFragmentByTag("progress")?.let {
+            (it as DialogFragment).dismiss()
         }
     }
 
