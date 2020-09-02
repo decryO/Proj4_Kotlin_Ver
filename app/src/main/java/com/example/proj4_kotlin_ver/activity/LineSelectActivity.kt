@@ -6,6 +6,7 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.MenuItem
 import android.widget.ArrayAdapter
+import android.widget.Toast
 import androidx.fragment.app.DialogFragment
 import com.example.proj4_kotlin_ver.R
 import com.example.proj4_kotlin_ver.data.StationData
@@ -61,7 +62,12 @@ class LineSelectActivity : AppCompatActivity() {
                         intent.putExtra("lngs", lngs)
                         startActivityForResult(intent, 0)
                     }
-                    is Result.Failure -> { }
+                    is Result.Failure -> {
+                        Toast.makeText(this, "通信にエラーが生じました。もう一度お試しください", Toast.LENGTH_SHORT).show()
+                        supportFragmentManager.findFragmentByTag("progress")?.let {
+                            (it as DialogFragment).dismiss()
+                        }
+                    }
                 }
             }
         }
