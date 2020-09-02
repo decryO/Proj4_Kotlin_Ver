@@ -10,6 +10,7 @@ import java.lang.IllegalStateException
 class ProgressDialogFragment: DialogFragment() {
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
+//        val df = this as DialogFragment
         return activity?.let {
             val builder = AlertDialog.Builder(it)
             val inflater = it.layoutInflater
@@ -17,7 +18,8 @@ class ProgressDialogFragment: DialogFragment() {
             // layoutを適用する
             builder.setView(view)
             // Dialogの外をタップしてもキャンセルできなくする
-            builder.setCancelable(false)
+            // DialogFragmentに対してsetCancelableをセットする
+            this.isCancelable = false
             builder.create()
         } ?: throw IllegalStateException()
     }
