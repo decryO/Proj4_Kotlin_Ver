@@ -18,7 +18,6 @@
     <string name="permission_DENIED_description">アプリケーションの位置情報の取得が許可されていません。\n設定からアプリケーションの位置情報の取得を許可してください。</string>
 
     <string name="alarm_stop">停止</string>
-
     <string name="historyTitle">履歴</string>
     <string name="settingTitle">アラーム音設定</string>
     <string name="stationsDetailTitle">駅・路線情報について</string>

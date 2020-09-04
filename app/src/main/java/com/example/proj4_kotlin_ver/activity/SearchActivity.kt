@@ -9,21 +9,32 @@ import android.widget.ArrayAdapter
 import android.widget.SearchView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.isVisible
+import androidx.recyclerview.widget.DividerItemDecoration
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
+import com.example.proj4_kotlin_ver.HistoryRecyclerViewAdapter
 import com.example.proj4_kotlin_ver.R
+import com.example.proj4_kotlin_ver.SearchRecyclerViewAdapter
 import com.example.proj4_kotlin_ver.data.StationData
+import com.example.proj4_kotlin_ver.data.StationDetail
+import com.example.proj4_kotlin_ver.data.Stations
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
 import com.github.kittinunf.fuel.httpGet
 import com.github.kittinunf.result.Result
+import kotlinx.android.synthetic.main.activity_history.*
 import kotlinx.android.synthetic.main.activity_search.*
 
 class SearchActivity : AppCompatActivity() {
 
     private lateinit var stationData: StationData
+    private val emptyStationData = StationData(Stations(emptyList<StationDetail>()))
     private lateinit var stations: Array<String>
     private lateinit var lines: Array<String>
     private lateinit var lats: Array<Double>
     private lateinit var lngs: Array<Double>
+    private lateinit var adapter: SearchRecyclerViewAdapter
+    private lateinit var layoutManager: RecyclerView.LayoutManager
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -48,9 +59,6 @@ class SearchActivity : AppCompatActivity() {
                     example_text.text = getString(R.string.search_description)
                     example_text.visibility = View.VISIBLE
                     search_progress_bar.visibility = View.GONE
-
-                    val adapter = ArrayAdapter<String>(this@SearchActivity, android.R.layout.simple_list_item_1, emptyArray())
-                    search_result_list.adapter = adapter
                 }
                 return false
             }
@@ -90,10 +98,12 @@ class SearchActivity : AppCompatActivity() {
                                     lats += it.y
                                     lngs += it.x
                                 }
-                                adapterArray = lines
+                                adapter = SearchRecyclerViewAdapter(stationData)
+                                search_result_list.adapter = adapter
+
+                                val itemDecoration = DividerItemDecoration(this@SearchActivity, DividerItemDecoration.VERTICAL)
+                                search_result_list.addItemDecoration(itemDecoration)
                             }
-                            val adapter = ArrayAdapter<String>(this@SearchActivity, android.R.layout.simple_list_item_1, adapterArray)
-                            search_result_list.adapter = adapter
                         }
                         is Result.Failure -> { }
                     }
@@ -101,16 +111,22 @@ class SearchActivity : AppCompatActivity() {
                             return false
             }
         })
+//
+//        search_result_list.setOnItemClickListener { _, _, position, _ ->
+//            val intent = Intent()
+//            intent.putExtra("station", stations[position])
+//            intent.putExtra("line", lines[position])
+//            intent.putExtra("lat", lats[position])
+//            intent.putExtra("lng", lngs[position])
+//            setResult(RESULT_OK, intent)
+//            finish()
+//        }
+    }
 
-        search_result_list.setOnItemClickListener { _, _, position, _ ->
-            val intent = Intent()
-            intent.putExtra("station", stations[position])
-            intent.putExtra("line", lines[position])
-            intent.putExtra("lat", lats[position])
-            intent.putExtra("lng", lngs[position])
-            setResult(RESULT_OK, intent)
-            finish()
-        }
+    override fun onStart() {
+        super.onStart()
+        layoutManager = LinearLayoutManager(this)
+        search_result_list.layoutManager = layoutManager
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
