@@ -21,6 +21,7 @@ class SearchActivity : AppCompatActivity() {
 
     private lateinit var stationData: StationData
     private lateinit var stations: Array<String>
+    private lateinit var lines: Array<String>
     private lateinit var lats: Array<Double>
     private lateinit var lngs: Array<Double>
 
@@ -78,7 +79,7 @@ class SearchActivity : AppCompatActivity() {
                                 val mapper = jacksonObjectMapper()
                                 stationData = mapper.readValue(result.value)
 
-                                var lines: Array<String> = emptyArray()
+                                lines = emptyArray()
                                 stations = emptyArray()
                                 lats = emptyArray()
                                 lngs = emptyArray()
@@ -104,6 +105,7 @@ class SearchActivity : AppCompatActivity() {
         search_result_list.setOnItemClickListener { _, _, position, _ ->
             val intent = Intent()
             intent.putExtra("station", stations[position])
+            intent.putExtra("line", lines[position])
             intent.putExtra("lat", lats[position])
             intent.putExtra("lng", lngs[position])
             setResult(RESULT_OK, intent)
