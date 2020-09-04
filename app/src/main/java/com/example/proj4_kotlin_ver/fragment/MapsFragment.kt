@@ -14,11 +14,13 @@ import android.text.Editable
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import com.example.proj4_kotlin_ver.*
 import com.example.proj4_kotlin_ver.activity.PrefectureSelectActivity
 import com.example.proj4_kotlin_ver.activity.SearchActivity
+import com.example.proj4_kotlin_ver.data.HistoryData
 import com.example.proj4_kotlin_ver.dialog.PermissionDENIEDDialogFragment
 import com.example.proj4_kotlin_ver.service.GeoFencingService
 import com.google.android.gms.location.FusedLocationProviderClient
@@ -28,12 +30,17 @@ import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.model.*
+import io.realm.Realm
+import io.realm.kotlin.createObject
+import io.realm.kotlin.where
 import kotlinx.android.synthetic.main.activity_maps.*
+import java.util.*
 
 class MapsFragment : Fragment(), OnMapReadyCallback, View.OnClickListener,
     PermissionDENIEDDialogFragment.PermissionDENIEDDialogListener {
 
     private lateinit var mMap: GoogleMap
+    private lateinit var realm: Realm
     private var fusedLocationClient: FusedLocationProviderClient? = null
     private var ringtoneString: String? = null
     // デフォルトの座標(東京)
@@ -42,6 +49,7 @@ class MapsFragment : Fragment(), OnMapReadyCallback, View.OnClickListener,
     private var station_unselect_flag = true
     private var alertRadius: Double = 100.0
 
+    private var selectedLine: String = ""
     private var selectedStation: String = ""
 
     private val deniedDialog =
@@ -73,6 +81,8 @@ class MapsFragment : Fragment(), OnMapReadyCallback, View.OnClickListener,
         mapView.onResume()
         mapView.getMapAsync(this)
 
+        realm = Realm.getDefaultInstance()
+
         searchBtn.setOnClickListener(this)
         listBtn.setOnClickListener(this)
 
@@ -99,6 +109,11 @@ class MapsFragment : Fragment(), OnMapReadyCallback, View.OnClickListener,
                 }}
             }
         }
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        realm.close()
     }
 
     override fun onMapReady(googleMap: GoogleMap) {
@@ -174,10 +189,16 @@ class MapsFragment : Fragment(), OnMapReadyCallback, View.OnClickListener,
                 val extras = data?.extras
                 if(extras != null) {
                     val station = extras.getString("station")
+                    val line = extras.getString("line")
                     latLng = LatLng(extras.getDouble("lat"), extras.getDouble("lng"))
+
                     if (station != null) {
                         selectedStation = station
                         select_station_text.text = station
+                    }
+                    if (line != null) {
+                       selectedLine = line
+                       println("あああああああああああああ\n${selectedLine}")
                     }
                     setAlarmBtnEnable()
                 }
@@ -192,6 +213,21 @@ class MapsFragment : Fragment(), OnMapReadyCallback, View.OnClickListener,
             putInt(getString(R.string.saved_radius), alertRadius.toInt())
             commit()
         }
+
+        realm.executeTransaction {
+            val maxId = realm.where<HistoryData>().max("id")
+            val id = (maxId?.toLong() ?: 0L) + 1L
+            val historyData = realm.createObject<HistoryData>(id)
+            historyData.dateTime = Date()
+            historyData.station = selectedStation
+            historyData.line = selectedLine
+            historyData.lat = latLng.latitude
+            historyData.lng = latLng.longitude
+            historyData.radius = alertRadius
+        }
+
+        println("あああああああああああああ\n${selectedLine}")
+
         ringtoneString = sharedPref.getString(getString(R.string.saved_ringtone), RingtoneManager.getDefaultUri(RingtoneManager.TYPE_RINGTONE).toString())
 
         val serviceIntent = Intent(activity, GeoFencingService::class.java)

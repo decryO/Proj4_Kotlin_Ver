@@ -89,6 +89,7 @@ class PrefectureSelectActivity : AppCompatActivity() {
                 val text = extras.getString("text")
                 val intent = Intent()
                 intent.putExtra("station", extras.getString("station"))
+                intent.putExtra("line", extras.getString("line"))
                 intent.putExtra("lat", extras.getDouble("lat"))
                 intent.putExtra("lng", extras.getDouble("lng"))
                 setResult(Activity.RESULT_OK, intent)

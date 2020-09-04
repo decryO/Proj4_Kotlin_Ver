@@ -25,6 +25,7 @@ class LineSelectActivity : AppCompatActivity() {
     private lateinit var lats: Array<Double>
     private lateinit var lngs: Array<Double>
     private val progressDialog = ProgressDialogFragment()
+    private var selectedLine = ""
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -41,7 +42,8 @@ class LineSelectActivity : AppCompatActivity() {
 
         line_list.setOnItemClickListener { _, _, position, _ ->
             progressDialog.show(supportFragmentManager, "progress")
-            val getStationUrl = "https://express.heartrails.com/api/json?method=getStations&line=${lines[position]}"
+            selectedLine = lines[position]
+            val getStationUrl = "https://express.heartrails.com/api/json?method=getStations&line=${selectedLine}"
             getStationUrl.httpGet().responseString { _, _, result ->
                 when(result) {
                     is Result.Success -> {
@@ -99,6 +101,7 @@ class LineSelectActivity : AppCompatActivity() {
                 val position = extras.getInt("position")
                 val intent = Intent()
                 intent.putExtra("station", extras.getString("station"))
+                intent.putExtra("line", selectedLine)
                 intent.putExtra("lat", lats[position])
                 intent.putExtra("lng", lngs[position])
                 setResult(Activity.RESULT_OK, intent)
