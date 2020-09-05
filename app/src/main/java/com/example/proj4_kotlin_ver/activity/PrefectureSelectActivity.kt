@@ -5,10 +5,15 @@ import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.MenuItem
-import android.widget.ArrayAdapter
+import android.view.View
 import android.widget.Toast
 import androidx.fragment.app.DialogFragment
+import androidx.recyclerview.widget.DividerItemDecoration
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.example.proj4_kotlin_ver.R
+import com.example.proj4_kotlin_ver.SelectionRecyclerViewAdapter
+import com.example.proj4_kotlin_ver.SelectionViewHolder
 import com.example.proj4_kotlin_ver.dialog.ProgressDialogFragment
 import com.github.kittinunf.fuel.httpGet
 import com.github.kittinunf.fuel.json.responseJson
@@ -18,10 +23,12 @@ import kotlinx.android.synthetic.main.activity_stations_detail.detail_tool_bar
 import org.json.JSONArray
 import org.json.JSONObject
 
-class PrefectureSelectActivity : AppCompatActivity() {
+class PrefectureSelectActivity : AppCompatActivity(), SelectionViewHolder.ItemClickListener {
 
     private lateinit var prefectures: Array<String>
     private val progressDialog = ProgressDialogFragment()
+    private lateinit var adapter: SelectionRecyclerViewAdapter
+    private lateinit var layoutManager: RecyclerView.LayoutManager
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -30,37 +37,20 @@ class PrefectureSelectActivity : AppCompatActivity() {
         setSupportActionBar(detail_tool_bar)
 
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
+    }
+
+    override fun onStart() {
+        super.onStart()
 
         prefectures = resources.getStringArray(R.array.prefectures)
-        val adapter = ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, prefectures)
-        line_list.adapter = adapter
+        layoutManager = LinearLayoutManager(this)
+        prefecture_list.layoutManager = layoutManager
 
-        line_list.setOnItemClickListener { _, _, position, _ ->
-            progressDialog.show(supportFragmentManager, "progress")
-            val getLineUrl = "https://express.heartrails.com/api/json?method=getLines&prefecture=${prefectures[position]}"
-            getLineUrl.httpGet().responseJson { _, _, result ->
-                when(result) {
-                    is Result.Success -> {
-                        val responseJson = result.get()
-                        var lineArray: Array<String> = emptyArray()
-                        val lineObj: JSONArray = (responseJson.obj()["response"] as JSONObject).get("line") as JSONArray
-                        lineArray = Array(lineObj.length()) {
-                            lineObj.getString(it)
-                        }
+        adapter = SelectionRecyclerViewAdapter(prefectures, this)
+        prefecture_list.adapter = this.adapter
 
-                        val intent = Intent(this, LineSelectActivity::class.java)
-                        intent.putExtra("lines", lineArray)
-                        startActivityForResult(intent, 0)
-                    }
-                    is Result.Failure -> {
-                        Toast.makeText(this, "通信にエラーが生じました。もう一度お試しください", Toast.LENGTH_SHORT).show()
-                        supportFragmentManager.findFragmentByTag("progress")?.let {
-                            (it as DialogFragment).dismiss()
-                        }
-                    }
-                }
-            }
-        }
+        val itemDecoration = DividerItemDecoration(this, DividerItemDecoration.VERTICAL)
+        prefecture_list.addItemDecoration(itemDecoration)
     }
 
     override fun onPause() {
@@ -79,6 +69,33 @@ class PrefectureSelectActivity : AppCompatActivity() {
         if(item.itemId == android.R.id.home) finish()
 
         return super.onOptionsItemSelected(item)
+    }
+
+    override fun onItemClick(itemView: View, position: Int) {
+        progressDialog.show(supportFragmentManager, "progress")
+        val getLineUrl = "https://express.heartrails.com/api/json?method=getLines&prefecture=${prefectures[position]}"
+        getLineUrl.httpGet().responseJson { _, _, result ->
+            when(result) {
+                is Result.Success -> {
+                    val responseJson = result.get()
+                    var lineArray: Array<String> = emptyArray()
+                    val lineObj: JSONArray = (responseJson.obj()["response"] as JSONObject).get("line") as JSONArray
+                    lineArray = Array(lineObj.length()) {
+                        lineObj.getString(it)
+                    }
+
+                    val intent = Intent(this, LineSelectActivity::class.java)
+                    intent.putExtra("lines", lineArray)
+                    startActivityForResult(intent, 0)
+                }
+                is Result.Failure -> {
+                    Toast.makeText(this, "通信にエラーが生じました。もう一度お試しください", Toast.LENGTH_SHORT).show()
+                    supportFragmentManager.findFragmentByTag("progress")?.let {
+                        (it as DialogFragment).dismiss()
+                    }
+                }
+            }
+        }
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
