@@ -187,10 +187,10 @@ class MapsFragment : Fragment(), OnMapReadyCallback, View.OnClickListener,
             0, 200 -> {
                 station_unselect_flag = false
                 val extras = data?.extras
-                if(extras != null) {
-                    val station = extras.getString("station")
-                    val line = extras.getString("line")
-                    latLng = LatLng(extras.getDouble("lat"), extras.getDouble("lng"))
+                extras?.let {
+                    val station = it.getString("station")
+                    val line = it.getString("line")
+                    latLng = LatLng(it.getDouble("lat"), it.getDouble("lng"))
 
                     if (station != null) {
                         selectedStation = station

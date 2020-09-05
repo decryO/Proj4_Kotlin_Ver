@@ -1,11 +1,9 @@
 package com.example.proj4_kotlin_ver.activity
 
-import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.MenuItem
 import android.view.View
-import android.widget.Toast
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -16,7 +14,6 @@ import com.example.proj4_kotlin_ver.data.HistoryData
 import io.realm.Realm
 import io.realm.RealmResults
 import io.realm.Sort
-import io.realm.kotlin.where
 import kotlinx.android.synthetic.main.activity_history.*
 
 class HistoryActivity : AppCompatActivity(), HistoryViewHolder.ItemClickListener {

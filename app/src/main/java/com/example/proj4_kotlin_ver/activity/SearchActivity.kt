@@ -1,30 +1,23 @@
 package com.example.proj4_kotlin_ver.activity
 
-import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.view.MenuItem
 import android.view.View
-import android.widget.ArrayAdapter
 import android.widget.SearchView
-import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.view.isVisible
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.example.proj4_kotlin_ver.HistoryRecyclerViewAdapter
 import com.example.proj4_kotlin_ver.R
 import com.example.proj4_kotlin_ver.SearchRecyclerViewAdapter
 import com.example.proj4_kotlin_ver.SearchViewHolder
 import com.example.proj4_kotlin_ver.data.StationData
-import com.example.proj4_kotlin_ver.data.StationDetail
 import com.example.proj4_kotlin_ver.data.Stations
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
 import com.github.kittinunf.fuel.httpGet
 import com.github.kittinunf.result.Result
-import kotlinx.android.synthetic.main.activity_history.*
 import kotlinx.android.synthetic.main.activity_search.*
 
 class SearchActivity : AppCompatActivity(), SearchViewHolder.ItemClickListener {
