@@ -198,7 +198,6 @@ class MapsFragment : Fragment(), OnMapReadyCallback, View.OnClickListener,
                     }
                     if (line != null) {
                        selectedLine = line
-                       println("あああああああああああああ\n${selectedLine}")
                     }
                     setAlarmBtnEnable()
                 }
@@ -225,8 +224,6 @@ class MapsFragment : Fragment(), OnMapReadyCallback, View.OnClickListener,
             historyData.lng = latLng.longitude
             historyData.radius = alertRadius
         }
-
-        println("あああああああああああああ\n${selectedLine}")
 
         ringtoneString = sharedPref.getString(getString(R.string.saved_ringtone), RingtoneManager.getDefaultUri(RingtoneManager.TYPE_RINGTONE).toString())
 
