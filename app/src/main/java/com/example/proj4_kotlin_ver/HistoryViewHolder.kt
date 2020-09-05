@@ -17,4 +17,8 @@ class HistoryViewHolder(itemView: View): RecyclerView.ViewHolder(itemView) {
         dateText = itemView.dateText
         radiusText = itemView.radiusText
     }
+
+    interface ItemClickListener {
+        fun onItemClick(itemView: View, position: Int)
+    }
 }

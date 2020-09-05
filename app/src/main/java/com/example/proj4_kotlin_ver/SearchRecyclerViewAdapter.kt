@@ -12,7 +12,7 @@ class SearchRecyclerViewAdapter(stationData: StationData, private val itemClickL
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): SearchViewHolder {
         val view = LayoutInflater.from(parent.context).inflate(R.layout.search_list, parent, false)
-        view.setOnClickListener { view ->
+        view.setOnClickListener { _ ->
             sRecyclerView?.let {
                 itemClickListener.onItemClick(view, it.getChildAdapterPosition(view))
             }
