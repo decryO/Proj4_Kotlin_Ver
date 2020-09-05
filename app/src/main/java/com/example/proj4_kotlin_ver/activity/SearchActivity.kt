@@ -7,6 +7,7 @@ import android.view.MenuItem
 import android.view.View
 import android.widget.ArrayAdapter
 import android.widget.SearchView
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.isVisible
 import androidx.recyclerview.widget.DividerItemDecoration
@@ -15,6 +16,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.proj4_kotlin_ver.HistoryRecyclerViewAdapter
 import com.example.proj4_kotlin_ver.R
 import com.example.proj4_kotlin_ver.SearchRecyclerViewAdapter
+import com.example.proj4_kotlin_ver.SearchViewHolder
 import com.example.proj4_kotlin_ver.data.StationData
 import com.example.proj4_kotlin_ver.data.StationDetail
 import com.example.proj4_kotlin_ver.data.Stations
@@ -25,10 +27,9 @@ import com.github.kittinunf.result.Result
 import kotlinx.android.synthetic.main.activity_history.*
 import kotlinx.android.synthetic.main.activity_search.*
 
-class SearchActivity : AppCompatActivity() {
+class SearchActivity : AppCompatActivity(), SearchViewHolder.ItemClickListener {
 
     private lateinit var stationData: StationData
-    private val emptyStationData = StationData(Stations(emptyList<StationDetail>()))
     private lateinit var stations: Array<String>
     private lateinit var lines: Array<String>
     private lateinit var lats: Array<Double>
@@ -59,6 +60,10 @@ class SearchActivity : AppCompatActivity() {
                     example_text.text = getString(R.string.search_description)
                     example_text.visibility = View.VISIBLE
                     search_progress_bar.visibility = View.GONE
+
+                    // リストの中身を空にする
+                    adapter = SearchRecyclerViewAdapter(StationData(Stations(emptyList())), this@SearchActivity)
+                    search_result_list.adapter = adapter
                 }
                 return false
             }
@@ -75,7 +80,6 @@ class SearchActivity : AppCompatActivity() {
                             search_progress_bar.visibility = View.GONE
 
                             val regex = Regex("error")
-                            var adapterArray: Array<String> = emptyArray()
                             // 検索文字列の駅名があるならresult.value内にerror文がないのでfalse
                             if(regex.containsMatchIn(result.value)) {
                                 // ユーザーに検索文字列の駅がないことをわかりやすくするためにtextを変更する
@@ -98,7 +102,7 @@ class SearchActivity : AppCompatActivity() {
                                     lats += it.y
                                     lngs += it.x
                                 }
-                                adapter = SearchRecyclerViewAdapter(stationData)
+                                adapter = SearchRecyclerViewAdapter(stationData, this@SearchActivity)
                                 search_result_list.adapter = adapter
 
                                 val itemDecoration = DividerItemDecoration(this@SearchActivity, DividerItemDecoration.VERTICAL)
@@ -111,16 +115,6 @@ class SearchActivity : AppCompatActivity() {
                             return false
             }
         })
-//
-//        search_result_list.setOnItemClickListener { _, _, position, _ ->
-//            val intent = Intent()
-//            intent.putExtra("station", stations[position])
-//            intent.putExtra("line", lines[position])
-//            intent.putExtra("lat", lats[position])
-//            intent.putExtra("lng", lngs[position])
-//            setResult(RESULT_OK, intent)
-//            finish()
-//        }
     }
 
     override fun onStart() {
@@ -133,5 +127,15 @@ class SearchActivity : AppCompatActivity() {
         if(item.itemId == android.R.id.home) finish()
 
         return super.onOptionsItemSelected(item)
+    }
+
+    override fun onItemClick(itemView: View, position: Int) {
+        val intent = Intent()
+        intent.putExtra("station", stations[position])
+        intent.putExtra("line", lines[position])
+        intent.putExtra("lat", lats[position])
+        intent.putExtra("lng", lngs[position])
+        setResult(RESULT_OK, intent)
+        finish()
     }
 }

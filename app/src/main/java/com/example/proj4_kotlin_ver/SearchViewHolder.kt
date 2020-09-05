@@ -13,4 +13,8 @@ class SearchViewHolder(itemView: View): RecyclerView.ViewHolder(itemView) {
         lineText = itemView.lineText
         stationsText = itemView.stationsText
     }
+
+    interface ItemClickListener {
+        fun onItemClick(itemView: View, position: Int)
+    }
 }

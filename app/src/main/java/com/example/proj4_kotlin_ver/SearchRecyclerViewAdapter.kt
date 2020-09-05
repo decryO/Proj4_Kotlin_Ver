@@ -5,12 +5,18 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.example.proj4_kotlin_ver.data.StationData
 
-class SearchRecyclerViewAdapter(stationData: StationData): RecyclerView.Adapter<SearchViewHolder>() {
+class SearchRecyclerViewAdapter(stationData: StationData, private val itemClickListener: SearchViewHolder.ItemClickListener): RecyclerView.Adapter<SearchViewHolder>() {
 
+    private var sRecyclerView: RecyclerView? = null
     private val sResult: StationData = stationData
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): SearchViewHolder {
         val view = LayoutInflater.from(parent.context).inflate(R.layout.search_list, parent, false)
+        view.setOnClickListener { view ->
+            sRecyclerView?.let {
+                itemClickListener.onItemClick(view, it.getChildAdapterPosition(view))
+            }
+        }
         return SearchViewHolder(view)
     }
 
@@ -25,5 +31,15 @@ class SearchRecyclerViewAdapter(stationData: StationData): RecyclerView.Adapter<
 
     override fun getItemCount(): Int {
         return sResult.response.station.size
+    }
+
+    override fun onAttachedToRecyclerView(recyclerView: RecyclerView) {
+        super.onAttachedToRecyclerView(recyclerView)
+        sRecyclerView = recyclerView
+    }
+
+    override fun onDetachedFromRecyclerView(recyclerView: RecyclerView) {
+        super.onDetachedFromRecyclerView(recyclerView)
+        sRecyclerView = null
     }
 }
