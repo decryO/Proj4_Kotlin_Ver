@@ -1,9 +1,13 @@
 package com.example.proj4_kotlin_ver.activity
 
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.view.MenuItem
+import android.view.LayoutInflater
 import android.view.View
+import android.view.ViewGroup
+import android.widget.Toast
+import androidx.core.os.bundleOf
+import androidx.fragment.app.Fragment
+import androidx.fragment.app.setFragmentResult
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -16,34 +20,36 @@ import io.realm.RealmResults
 import io.realm.Sort
 import kotlinx.android.synthetic.main.activity_history.*
 
-class HistoryActivity : AppCompatActivity(), HistoryViewHolder.ItemClickListener {
+class HistoryActivity : Fragment(), HistoryViewHolder.ItemClickListener {
 
     private lateinit var realm: Realm
     private lateinit var sortedResults: RealmResults<HistoryData>
     private lateinit var adapter: HistoryRecyclerViewAdapter
     private lateinit var layoutManager: RecyclerView.LayoutManager
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_history)
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View? {
+        return inflater.inflate(R.layout.activity_history, container, false)
+    }
 
-        setSupportActionBar(history_tool_bar)
-
-        supportActionBar?.setDisplayHomeAsUpEnabled(true)
-
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
         realm = Realm.getDefaultInstance()
     }
 
     override fun onStart() {
         super.onStart()
         sortedResults = realm.where(HistoryData::class.java).findAll().sort("dateTime", Sort.DESCENDING)
-        layoutManager = LinearLayoutManager(this)
+        layoutManager = LinearLayoutManager(activity)
         recycleView.layoutManager = layoutManager
 
         adapter = HistoryRecyclerViewAdapter(sortedResults, this)
         recycleView.adapter = this.adapter
 
-        val itemDecoration = DividerItemDecoration(this, DividerItemDecoration.VERTICAL)
+        val itemDecoration = DividerItemDecoration(activity, DividerItemDecoration.VERTICAL)
         recycleView.addItemDecoration(itemDecoration)
 
         if (adapter.itemCount == 0) {
@@ -53,17 +59,22 @@ class HistoryActivity : AppCompatActivity(), HistoryViewHolder.ItemClickListener
         }
     }
 
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        if(item.itemId == android.R.id.home) finish()
-
-        return super.onOptionsItemSelected(item)
-    }
-
     override fun onDestroy() {
         super.onDestroy()
         realm.close()
     }
 
     override fun onItemClick(itemView: View, position: Int) {
+        sortedResults[position]?.let {
+            setFragmentResult("stationData", bundleOf(
+                "station" to it.station,
+                "line" to it.line,
+                "lat" to it.lat,
+                "lng" to it.lng,
+                "radius" to it.radius
+            ))
+
+            Toast.makeText(activity, "アラームセット画面にデータを設定しました", Toast.LENGTH_SHORT).show()
+        }
     }
 }

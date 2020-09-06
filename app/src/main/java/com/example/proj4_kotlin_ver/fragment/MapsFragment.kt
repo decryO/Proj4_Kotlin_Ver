@@ -14,9 +14,9 @@ import android.text.Editable
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.setFragmentResultListener
 import com.example.proj4_kotlin_ver.*
 import com.example.proj4_kotlin_ver.activity.PrefectureSelectActivity
 import com.example.proj4_kotlin_ver.activity.SearchActivity
@@ -46,7 +46,7 @@ class MapsFragment : Fragment(), OnMapReadyCallback, View.OnClickListener,
     // デフォルトの座標(東京)
     private var latLng = LatLng(35.681236, 139.767125)
     // 現在位置を取得するかしないかのフラグ
-    private var station_unselect_flag = true
+    private var stationUnselectFlag = true
     private var alertRadius: Double = 100.0
 
     private var selectedLine: String = ""
@@ -89,13 +89,31 @@ class MapsFragment : Fragment(), OnMapReadyCallback, View.OnClickListener,
         alarmButton.setOnClickListener(this)
 
         sliderText.text = getString(R.string.slider_text, alertRadius.toInt())
+
+        setFragmentResultListener("stationData") { _, bundle ->
+            selectedStation = bundle.getString("station") ?: ""
+            if(selectedStation.isNotEmpty()) select_station_text.text = selectedStation
+
+            selectedLine = bundle.getString("line") ?: ""
+
+            val lat = bundle.getDouble("lat")
+            val lng = bundle.getDouble("lng")
+            latLng = LatLng(lat, lng)
+
+            alertRadius = bundle.getDouble("radius")
+            slider.value = alertRadius.toFloat()
+            sliderText.text = getString(R.string.slider_text, alertRadius.toInt())
+
+            stationUnselectFlag = false
+            setAlarmBtnEnable()
+        }
     }
 
     override fun onResume() {
         super.onResume()
 
         // 目的の駅が指定されていないときのみ自身の位置情報を取得し、Mapに描画する
-        if(station_unselect_flag) {
+        if(stationUnselectFlag) {
             val fineLocationPermission = activity?.let { ContextCompat.checkSelfPermission(it, Manifest.permission.ACCESS_FINE_LOCATION) } == PackageManager.PERMISSION_GRANTED
             if(fineLocationPermission) {
                 fusedLocationClient = context?.let { LocationServices.getFusedLocationProviderClient(it) }
@@ -122,6 +140,8 @@ class MapsFragment : Fragment(), OnMapReadyCallback, View.OnClickListener,
         mMap.mapType = GoogleMap.MAP_TYPE_NORMAL
         mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, 13F))
 
+        drawCircle()
+
         // スライダーが操作され、値が変更されたとき。
         slider.addOnChangeListener { slider, _, _ ->
             alertRadius = slider.value.toDouble()
@@ -129,13 +149,7 @@ class MapsFragment : Fragment(), OnMapReadyCallback, View.OnClickListener,
 
             mMap.clear()
 
-            mMap.addCircle(CircleOptions()
-                .center(latLng)
-                .radius(alertRadius)
-                .strokeColor(Color.RED)
-                .fillColor(0x220000FF)
-                .strokeWidth(5F)
-            )
+            drawCircle()
         }
 
         // 駅が選択されていればアラームセットボタンを活性化、そうでなければ非活性化
@@ -146,15 +160,19 @@ class MapsFragment : Fragment(), OnMapReadyCallback, View.OnClickListener,
 
                 mMap.clear()
 
-                mMap.addCircle(CircleOptions()
-                    .center(latLng)
-                    .radius(alertRadius)
-                    .strokeColor(Color.RED)
-                    .fillColor(0x220000FF)
-                    .strokeWidth(5F)
-                )
+                drawCircle()
             }
         })
+    }
+
+    private fun drawCircle() {
+        mMap.addCircle(CircleOptions()
+            .center(latLng)
+            .radius(alertRadius)
+            .strokeColor(Color.RED)
+            .fillColor(0x220000FF)
+            .strokeWidth(5F)
+        )
     }
 
     override fun onClick(v: View) {
@@ -185,7 +203,7 @@ class MapsFragment : Fragment(), OnMapReadyCallback, View.OnClickListener,
         if(resultCode == Activity.RESULT_OK) when(requestCode) {
             // 0 = リストから選択  200 = 検索から選択    2つとも駅名と駅座標を返すので一つにまとめている
             0, 200 -> {
-                station_unselect_flag = false
+                stationUnselectFlag = false
                 val extras = data?.extras
                 extras?.let {
                     val station = it.getString("station")

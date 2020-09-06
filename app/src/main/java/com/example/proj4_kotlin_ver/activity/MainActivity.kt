@@ -114,7 +114,15 @@ class MainActivity : AppCompatActivity(), DescriptionDialogFragment.DescriptionD
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when(item.itemId) {
             R.id.historyBtn -> {
-                startActivityForResult(Intent(this, HistoryActivity::class.java), 100)
+                supportActionBar?.setDisplayHomeAsUpEnabled(true)
+
+                val fragmentManager = supportFragmentManager
+                val transaction = fragmentManager.beginTransaction()
+                val historyActivity = HistoryActivity()
+                transaction.addToBackStack("")
+                transaction.replace(R.id.container, historyActivity)
+                transaction.commit()
+
                 return true
             }
             R.id.setting -> {
@@ -154,6 +162,10 @@ class MainActivity : AppCompatActivity(), DescriptionDialogFragment.DescriptionD
                 startActivity(Intent(this, OssLicensesMenuActivity::class.java))
                 return true
             }
+            android.R.id.home -> {
+                onBackPressed()
+                return true
+            }
             else -> return super.onOptionsItemSelected(item)
         }
     }
@@ -171,6 +183,11 @@ class MainActivity : AppCompatActivity(), DescriptionDialogFragment.DescriptionD
         }else{
             super.onActivityResult(requestCode, resultCode, data)
         }
+    }
+
+    override fun onBackPressed() {
+        super.onBackPressed()
+        supportActionBar?.setDisplayHomeAsUpEnabled(false)
     }
 
     private fun replaceFragment(fragment: Fragment) {
