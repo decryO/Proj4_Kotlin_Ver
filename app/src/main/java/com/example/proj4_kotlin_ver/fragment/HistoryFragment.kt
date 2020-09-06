@@ -1,9 +1,7 @@
-package com.example.proj4_kotlin_ver.activity
+package com.example.proj4_kotlin_ver.fragment
 
 import android.os.Bundle
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
+import android.view.*
 import android.widget.Toast
 import androidx.core.os.bundleOf
 import androidx.fragment.app.Fragment
@@ -18,9 +16,10 @@ import com.example.proj4_kotlin_ver.data.HistoryData
 import io.realm.Realm
 import io.realm.RealmResults
 import io.realm.Sort
+import io.realm.kotlin.where
 import kotlinx.android.synthetic.main.activity_history.*
 
-class HistoryActivity : Fragment(), HistoryViewHolder.ItemClickListener {
+class HistoryFragment : Fragment(), HistoryViewHolder.ItemClickListener {
 
     private lateinit var realm: Realm
     private lateinit var sortedResults: RealmResults<HistoryData>
@@ -32,6 +31,7 @@ class HistoryActivity : Fragment(), HistoryViewHolder.ItemClickListener {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
+        setHasOptionsMenu(true)
         return inflater.inflate(R.layout.activity_history, container, false)
     }
 
@@ -42,7 +42,7 @@ class HistoryActivity : Fragment(), HistoryViewHolder.ItemClickListener {
 
     override fun onStart() {
         super.onStart()
-        sortedResults = realm.where(HistoryData::class.java).findAll().sort("dateTime", Sort.DESCENDING)
+        sortedResults = realm.where<HistoryData>().findAll().sort("dateTime", Sort.DESCENDING)
         layoutManager = LinearLayoutManager(activity)
         recycleView.layoutManager = layoutManager
 
@@ -62,6 +62,25 @@ class HistoryActivity : Fragment(), HistoryViewHolder.ItemClickListener {
     override fun onDestroy() {
         super.onDestroy()
         realm.close()
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+        super.onCreateOptionsMenu(menu, inflater)
+        inflater.inflate(R.menu.history_option, menu)
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        return when(item.itemId) {
+            R.id.delete_history -> {
+                realm.executeTransaction {
+                    realm.where<HistoryData>().findAll().deleteAllFromRealm()
+                }
+                recycleView.visibility = View.GONE
+                no_history_description.visibility = View.VISIBLE
+                true
+            }
+            else -> super.onOptionsItemSelected(item)
+        }
     }
 
     override fun onItemClick(itemView: View, position: Int) {

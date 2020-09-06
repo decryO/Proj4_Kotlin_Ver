@@ -9,7 +9,6 @@ import android.media.RingtoneManager
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
-import android.view.Menu
 import android.view.MenuItem
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
@@ -20,6 +19,7 @@ import com.example.proj4_kotlin_ver.dialog.PermissionDENIEDDialogFragment
 import com.example.proj4_kotlin_ver.R
 import com.example.proj4_kotlin_ver.dialog.DescriptionDialogFragment
 import com.example.proj4_kotlin_ver.fragment.AlarmStopFragment
+import com.example.proj4_kotlin_ver.fragment.HistoryFragment
 import com.google.android.gms.oss.licenses.OssLicensesMenuActivity
 import kotlinx.android.synthetic.main.activity_main.*
 
@@ -94,6 +94,7 @@ class MainActivity : AppCompatActivity(), DescriptionDialogFragment.DescriptionD
         permissions: Array<out String>,
         grantResults: IntArray
     ) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         when(requestCode) {
             this.requestCode -> {
                 println(grantResults[0])
@@ -106,19 +107,17 @@ class MainActivity : AppCompatActivity(), DescriptionDialogFragment.DescriptionD
         }
     }
 
-    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
-        menuInflater.inflate(R.menu.options, menu)
-        return super.onCreateOptionsMenu(menu)
-    }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when(item.itemId) {
+            // delete_historyのアクションはHistoryFragmentに持たせている。
+
             R.id.historyBtn -> {
                 supportActionBar?.setDisplayHomeAsUpEnabled(true)
 
                 val fragmentManager = supportFragmentManager
                 val transaction = fragmentManager.beginTransaction()
-                val historyActivity = HistoryActivity()
+                val historyActivity = HistoryFragment()
                 transaction.addToBackStack("")
                 transaction.replace(R.id.container, historyActivity)
                 transaction.commit()

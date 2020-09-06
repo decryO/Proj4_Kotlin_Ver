@@ -38,4 +38,5 @@
     <string name="search_notfound_description">「%1$s」駅を見つけることができませんでした\n駅の名前のみで検索してください\n(例：「東京駅」 → 「東京」)</string>
     <string name="no_history_text">履歴はありません</string>
     <string name="progress_text">しばらくお待ちください</string>
+    <string name="history_delete">履歴消去</string>
 </resources>

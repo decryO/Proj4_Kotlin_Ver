@@ -11,9 +11,7 @@ import android.media.RingtoneManager
 import android.os.Build
 import android.os.Bundle
 import android.text.Editable
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
+import android.view.*
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.setFragmentResultListener
@@ -31,6 +29,7 @@ import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.model.*
 import io.realm.Realm
+import io.realm.Sort
 import io.realm.kotlin.createObject
 import io.realm.kotlin.where
 import kotlinx.android.synthetic.main.activity_maps.*
@@ -71,6 +70,7 @@ class MapsFragment : Fragment(), OnMapReadyCallback, View.OnClickListener,
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
+        setHasOptionsMenu(true)
         return inflater.inflate(R.layout.activity_maps, container, false)
     }
 
@@ -175,6 +175,11 @@ class MapsFragment : Fragment(), OnMapReadyCallback, View.OnClickListener,
         )
     }
 
+    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+        super.onCreateOptionsMenu(menu, inflater)
+        inflater.inflate(R.menu.options, menu)
+    }
+
     override fun onClick(v: View) {
         when(v.id) {
             R.id.searchBtn -> {
@@ -241,6 +246,14 @@ class MapsFragment : Fragment(), OnMapReadyCallback, View.OnClickListener,
             historyData.lat = latLng.latitude
             historyData.lng = latLng.longitude
             historyData.radius = alertRadius
+        }
+
+        val list = realm.where<HistoryData>().findAll().sort("dateTime", Sort.DESCENDING)
+        if(list.size > 50) {
+            realm.executeTransaction {
+                val delItem = list.last()
+                delItem?.deleteFromRealm()
+            }
         }
 
         ringtoneString = sharedPref.getString(getString(R.string.saved_ringtone), RingtoneManager.getDefaultUri(RingtoneManager.TYPE_RINGTONE).toString())
